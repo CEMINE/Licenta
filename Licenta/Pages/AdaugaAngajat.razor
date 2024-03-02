@@ -1,0 +1,167 @@
+﻿@page "/adaugareangajat"
+@using Licenta.Models
+@using Licenta.Services
+@using System.Data
+@using System.Diagnostics
+@inject DepartmentServices _departmentServices
+@inject JobServices _jobServices
+@inject EmployeeServices _employeeServices
+@inject IDialogService DialogAlert
+@inject NavigationManager navManager
+
+<div class="container container-fluid align-items-center justify-content-center">
+    <div class="row">
+        <div class="col justify-content-center" style="border:1px solid black">
+            <h3 style="text-align:center;">AdaugaAngajat</h3>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-2" style="border:1px solid black">
+            <p>test</p>
+        </div>
+        <div class="col-8 d-flex align-items-center" style="border:1px solid black">
+            <div class="date justify-content-center align-items-center" style="left:50%">
+                <form class="mt-3" style="width:100%; margin-left:80%">
+                    <div class="form-group">
+                        <label for="nume">Nume</label>
+                        <input @bind-value="@employee.FirstName" style="width:20vw" type="text" class="form-control" id="nume" aria-describedby="emailHelp" placeholder="Nume">
+                        
+                    </div>
+                    <div class="form-group mt-2">
+                        <label for="prenume">Prenume</label>
+                        <input @bind-value="@employee.LastName" type="text" class="form-control" id="prenume" placeholder="Prenume">
+                    </div>
+                    <div class="form-group mt-2">
+                        <label for="exampleFormControlSelect1">Departament</label>
+                        <select class="form-control" id="exampleFormControlSelect1" @onchange="DepartmentHandler">
+                            @if(departmentList == null)
+                            {
+                              <p>Loading</p>
+                            }
+                            else
+                            {
+                                foreach(DepartmentModel dep in departmentList)
+                                {
+                                    <option  value="@dep.DepartmentID">@dep.DepartmentName</option>
+                                }
+                            }
+                        </select>
+                    </div>
+                    <div class="form-group mt-2">
+                        <label for="exampleFormControlSelect1">Job</label>
+                        <select class="form-control" id="exampleFormControlSelect1" @onchange="JobHandler">
+                            @if (jobList == null)
+                            {
+
+                            }
+                            else
+                            {
+                                foreach (JobModel job in jobList)
+                                {
+                                    <option value="@job.JobID">@job.JobTitle</option>
+                                }
+                            }
+                        </select>
+                    </div>
+                    <div class="form-group mt-2">
+                        <label for="salar">Salariu</label>
+                        <input @bind-value="@employee.Salary" type="text" class="form-control" id="salar" placeholder="$$$$$">
+                    </div>
+                     
+
+                <div class="mb-3 mt-2 form-group">
+                        <label for="birthdate">Data nasterii</label>
+                        <input  class="form-control" name="birthdate" style="width:20vw;" TValue="@DateTime.Now" type="date" @bind-value="@employee.BirthDate" @bind-value:event="oninput" />
+                </div>
+                    <div class="mb-3 mt-2 form-group">
+                        <label for="hiredate">Data angajarii</label>
+                        <input class="form-control" name="hiredate" style="width:20vw;" TValue="DateTime" type="date" @bind-value="@employee.HireDate" @bind-value:event="oninput" />
+                    </div>
+
+                    
+                    
+                    <button type="submit" class="btn btn-primary" @onclick="AdaugareAngajat">Submit</button>
+                </form>
+            </div>
+        </div>
+        <div class="col-2" style="border:1px solid black">
+            <p>test</p>
+        </div>
+    </div>
+    <div class="row">
+    </div>
+</div>
+
+
+
+@code {
+    EmployeeModel employee = new EmployeeModel();
+    List<DepartmentModel> departmentList;
+    List<JobModel> jobList;
+    //public DateTime birthDate { get; set; } = DateTime.Now;
+    //public DateTime hireDate { get; set; } = DateTime.Now;
+
+    protected override async Task OnInitializedAsync()
+    {
+        employee.DepartmentID = 1;
+        employee.JobID = 1;
+        departmentList = await _departmentServices.GetAllDepartments();
+        jobList = await _jobServices.GetAllJobs();
+    }
+
+    public void Test()
+    {
+        //employee = new EmployeeModel();
+
+        Debug.WriteLine($"Numele angajatului este: {employee.FirstName} {employee.LastName}");
+        Debug.WriteLine($"Angajatul face parte din departamentul {employee.DepartmentID} si are jobul cu id {employee.JobID}");
+        Debug.WriteLine($"salariu: {employee.Salary}");
+        Debug.WriteLine($"dob: {employee.BirthDate} hiredate: {employee.HireDate}");
+
+
+    }
+
+    public async void AdaugareAngajat()
+    {
+        if(employee.FirstName == null)
+            return;
+        if (employee.LastName == null)
+            return;
+        if (employee.HireDate == null)
+            return;
+        if (employee.BirthDate == null)
+            return;
+        if (employee.JobID == null)
+            return;
+        if (employee.DepartmentID == null)
+            return;
+        if (employee.Salary == null)
+            return;
+
+        await _employeeServices.AddEmployee(employee);
+
+    }
+    /*
+    int jobId, departmentId;
+    public void TestSelectJob(int x)
+        {
+        jobId = x;
+
+        DialogAlert.DisplayConfirm("titlu",$"jobid: {jobId} ","da", "nu");
+    }
+    */
+
+    public void DepartmentHandler(ChangeEventArgs e)
+    {
+        employee.DepartmentID = Convert.ToInt32(e.Value);
+        DialogAlert.DisplayConfirm("titlu", $"{employee.DepartmentID} ", "da", "nu");
+    }
+
+    public void JobHandler(ChangeEventArgs e)
+    {
+        employee.JobID = Convert.ToInt32(e.Value);
+        DialogAlert.DisplayConfirm("titlu", $"{employee.JobID} ", "da", "nu");
+    }
+
+
+}

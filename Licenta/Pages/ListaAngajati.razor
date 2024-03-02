@@ -1,0 +1,107 @@
+﻿@page "/listaemp"
+@using Licenta.Data
+@using Licenta.Services
+@using Licenta.Models
+@using System.Diagnostics
+@inject WeatherForecastService ForecastService
+@inject EmployeeServices _employeeServices
+@inject IDialogService DialogService
+@inject NavigationManager navManager
+
+
+<h1>Dashboard</h1>
+
+Iata cateva date despre angajati.
+<br />
+<button class="btn btn-primary" @onclick="TestAddEmployee">Test</button>
+<br />
+
+@if (employeeList == null)
+{
+	<p><em>Loading...</em></p>
+}
+else
+{
+	
+	<div class="table-responsive-sm">
+		<table class="table table-sm table-striped gap-0">
+			<thead>
+				<tr>
+					<th style="width:8vw; padding: 0 0 0 0;">Nume</th>
+					<th style="width:8vw; padding: 0 0 0 0;">Prenume</th>
+					<th style="width:8vw; padding: 0 0 0 0;">Edit</th>
+					<th style="width:8vw; padding: 0 0 0 0;">Delete</th>
+
+
+				</tr>
+			</thead>
+			<tbody>
+				@foreach (EmployeeModel emp in employeeList)
+				{
+					<tr>
+						<td>@emp.FirstName</td>
+						<td>@emp.LastName</td>
+						<td><button class="btn btn-primary" @onclick=@(()=> UpdateEmployee(emp))>Edit</button></td>
+						<td><button class="btn btn-danger" @onclick=@(()=> DeleteEmployee(emp))>Delete</button></td>
+
+					</tr>
+				}
+			</tbody>
+		</table>
+	</div>
+}
+
+
+
+@code {
+	bool loaded = false;
+	List<EmployeeModel> employeeList;
+	public async void GetAllEmployees()
+	{
+		employeeList = await this._employeeServices.GetAllEmployees();        
+	}
+
+	public async void Test()
+	{
+		await DialogService.DisplayConfirm("Test", "test", "yes", "cancel");
+	}
+
+	protected override async Task OnInitializedAsync()
+	{
+		employeeList = await _employeeServices.GetAllEmployees();
+	}
+
+	public async void TestAddEmployee()
+	{
+		EmployeeModel emp = new EmployeeModel();
+		emp.FirstName = "FTest";
+		emp.LastName = "LTest";
+		emp.DepartmentID = 1;
+		emp.JobID = 1;
+		emp.Salary = 15000;
+		emp.HireDate = DateTime.Now;
+		emp.BirthDate = DateTime.Now;
+		await _employeeServices.AddEmployee(emp);
+		Debug.WriteLine("angajat adaugat");
+
+	}
+
+	public void UpdateEmployee(EmployeeModel e)
+	{
+		navManager.NavigateTo($"updateangajat/{e.EmployeeID}");
+		Debug.WriteLine($"emp id de la index {e.EmployeeID}");
+	}
+
+	public async void DeleteEmployee(EmployeeModel e)
+	{
+		await _employeeServices.DeleteEmployee(e);
+		employeeList = await this._employeeServices.GetAllEmployees();
+		this.StateHasChanged();
+	}
+
+
+    
+
+}
+
+

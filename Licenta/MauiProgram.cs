@@ -24,11 +24,13 @@ namespace Licenta
 #endif
 
 			builder.Services.AddSingleton<WeatherForecastService>();
+
 			builder.Services.AddSingleton<EmployeeServices>();
 			builder.Services.AddSingleton<IDialogService, DialogService>();
 			builder.Services.AddSingleton<DepartmentServices>();
 			builder.Services.AddSingleton<JobServices>();
 			builder.Services.AddSingleton<EmployeeProjectServices>();
+			builder.Services.AddSingleton<ProjectServices>();
 			return builder.Build();
 		}
 	}

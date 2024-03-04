@@ -7,6 +7,8 @@
 @inject DepartmentServices _departmentServices
 @inject JobServices _jobServices
 @inject EmployeeServices _employeeServices
+@inject EmployeeProjectServices _employeeProjectServices
+@inject ProjectServices _projectServices
 @inject IDialogService DialogAlert
 @inject NavigationManager navManager
 
@@ -94,6 +96,37 @@
                         <label for="hiredate">Data angajarii</label>
                         <input class="form-control" name="hiredate" style="width:20vw;" TValue="DateTime" type="date" @bind-value="@employee.HireDate" @bind-value:event="oninput" />
                     </div>
+                    <div class="mb-3 mt-2 form-group">
+                        
+                        @if (empProjectList == null || projectList == null)
+                        {
+                            <p>Loading</p>
+                        }
+                        else
+                        {
+                            @foreach(var empProject in empProjectList)
+                            {
+                                if(empProject.EmployeeId == EmployeeID)
+                                {
+                                    <select class="form-control">
+                                        @foreach(var proj in projectList)
+                                        {
+                                         if(empProject.ProjectId == proj.ProjectID)
+                                            {
+                                                <option value="@empProject.ProjectId" selected>@proj.ProjectName</option>
+                                            }
+                                         else
+                                           {
+                                                <option value="@empProject.ProjectId">@proj.ProjectName</option>         
+                                           }
+                                        }
+                                    </select>
+                                }
+                            }
+
+                        }
+                        
+                    </div>
 
 
 
@@ -118,6 +151,10 @@
     EmployeeModel employee = new EmployeeModel();
     List<DepartmentModel> departmentList;
     List<JobModel> jobList;
+    IEnumerable<ProjectModel> projectList;
+    IEnumerable<EmployeeProjectModel> empProjectList;
+    IEnumerable<EmployeeProjectModel> currentEmployeeProjects;
+
 
     protected override async Task OnInitializedAsync()
     {
@@ -127,6 +164,9 @@
         jobList = await _jobServices.GetAllJobs();
         employee = await _employeeServices.GetEmployeeById(EmployeeID);
         //Debug.WriteLine($"emp id {employee.EmployeeID} / {EmployeeID}");
+        empProjectList = await this._employeeProjectServices.GetAllEmployeesProjects();
+        projectList = await this._projectServices.GetAllProjects();
+        currentEmployeeProjects = empProjectList.Where(x => x.EmployeeId == EmployeeID);
         this.StateHasChanged();
     }
 
@@ -174,6 +214,14 @@
     {
         employee.JobID = Convert.ToInt32(e.Value);
         //DialogAlert.DisplayConfirm("titlu", $"{employee.JobID} ", "da", "nu");
+    }
+
+    public async void ProjectHandler(ChangeEventArgs e)
+    {
+        EmployeeProjectModel epm = new EmployeeProjectModel();
+        epm.EmployeeId = EmployeeID;
+        epm.ProjectId = Convert.ToInt32(e.Value);
+        //await this._employeeProjectServices.UpdateEmployeeProject(EmployeeID, )
     }
 
 

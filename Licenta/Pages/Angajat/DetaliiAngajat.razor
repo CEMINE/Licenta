@@ -1,0 +1,105 @@
+﻿@page "/detaliiangajat"
+@page "/detaliiangajat/{EmployeeID:int}"
+@using Licenta.Models
+@using Licenta.Services
+@using System.Data
+@using System.Diagnostics
+@inject DepartmentServices _departmentServices
+@inject JobServices _jobServices
+@inject EmployeeServices _employeeServices
+@inject EmployeeProjectServices _employeeProjectServices
+@inject ProjectServices _projectServices
+@inject IDialogService DialogAlert
+@inject NavigationManager navManager
+
+<button class="btn btn-primary" @onclick="Test">Test</button>
+<div class="row">
+    <div class="col">
+        <h1 style="text-align:center;">Detalii angajat</h1>
+    </div>
+</div>
+<div class="row">
+    <div class="col mt-5">
+        <div class="container container-fluid">
+            <div class="nume">
+                <h6><b>Nume:</b> @emp.LastName</h6>
+            </div>
+            <div class="prenume">
+                <h6><b>Prenume:</b> @emp.FirstName</h6>
+            </div>
+            <div class="varsta">
+                <h6><b>Varsta</b> @emp.Age</h6>
+            </div>
+            <div class="data-nasterii">
+                <h6><b>Data nasterii</b> @emp.BirthDate.ToShortDateString()</h6>
+            </div>
+            <div class="data-angajarii">
+                <h6><b>Data angajarii</b> @emp.HireDate.ToShortDateString()</h6>
+            </div>
+            <div class="departament">
+                <h6><b>ID Departament / Departament:</b> @emp.DepartmentID / @depName</h6>
+            </div>
+            <div class="job">
+                <h6><b>Id Job / Titlu job:</b> @emp.JobID / @jobTitle</h6>
+            </div>
+            <div class="proiecte">
+                <h6><b>Proiect(e)</b></h6>
+                @if(employeeProjectList == null || projectList == null)
+                {
+                    <p><em>Loading...</em></p>
+                }
+                else
+                {
+                    foreach(var project in employeeProjectList)
+                    {
+                        <p @onclick="EditEmployeeProject">@project.ProjectId / @projectList.Where(x => x.ProjectID == project.ProjectId).Select(z => z.ProjectName).First()</p>
+                    }
+                    
+                }
+            </div>
+            
+            
+        </div>
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public int EmployeeID { get; set; }
+
+    EmployeeModel emp = new EmployeeModel();
+    IEnumerable<DepartmentModel> departmentList;
+    IEnumerable<JobModel> jobList;
+    IEnumerable<EmployeeProjectModel> employeeProjectList;
+    IEnumerable<ProjectModel> projectList;
+    string depName; 
+    string jobTitle; 
+    protected override async Task OnInitializedAsync()
+    {
+        emp = await this._employeeServices.GetEmployeeById(EmployeeID);
+        departmentList = await this._departmentServices.GetAllDepartments();
+        jobList = await this._jobServices.GetAllJobs();
+        depName = departmentList.Where(x => x.DepartmentID == emp.DepartmentID).Select(d => d.DepartmentName).First();
+        jobTitle = jobList.Where(x => x.JobID == emp.JobID).Select(j => j.JobTitle).First();
+        employeeProjectList = await this._employeeProjectServices.GetEmployeeProjectsById(EmployeeID);
+        projectList = await this._projectServices.GetAllProjects();
+        //Debug.WriteLine($"emp id {employee.EmployeeID} / {EmployeeID}");
+        this.StateHasChanged();
+    }
+
+    public async void Test()
+    {
+        EmployeeProjectModel testEmp = new EmployeeProjectModel();
+        testEmp.ProjectId = 1;
+        testEmp.EmployeeId = 104;
+        await _employeeProjectServices.UpdateEmployeeProject(104, 3, testEmp);
+    }
+
+    public void EditEmployeeProject()
+    {
+        navManager.NavigateTo($"/updateproiectangajat/{EmployeeID}");
+    }
+
+
+
+}

@@ -56,6 +56,37 @@ namespace Licenta.Services
 
         }
 
+		public async Task<JobModel> GetJobById(int jobId)
+		{
+			try
+			{
+
+				JobModel currentJob = new JobModel();
+
+				string fullUrl = this.baseUrl + $"GetJobById/{jobId}";
+
+				HttpClient httpClient = new HttpClient();
+
+				httpClient.BaseAddress = new Uri(fullUrl);
+				httpClient.Timeout = TimeSpan.FromSeconds(30);
+
+				HttpResponseMessage httpResponseMessage = await httpClient.GetAsync("");
+
+				if (httpResponseMessage.IsSuccessStatusCode)
+				{
+					string contentRespone = await httpResponseMessage.Content.ReadAsStringAsync();
+
+					currentJob = JsonConvert.DeserializeObject<JobModel>(contentRespone);
+				}
+
+				return await Task.FromResult(currentJob);
+			}
+			catch (Exception)
+			{
+				return null;
+			}
+		}
+
 		public async Task<JobModel> AddJob(JobModel jobModel)
 		{
 			try

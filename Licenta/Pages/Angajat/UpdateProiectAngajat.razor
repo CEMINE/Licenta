@@ -1,0 +1,67 @@
+﻿@page "/updateproiectangajat"
+@page "/updateproiectangajat/{EmployeeID:int}"
+@using Licenta.Services
+@using Licenta.Models
+@inject EmployeeProjectServices _employeeProjectServices
+@inject EmployeeServices _employeeServices
+@inject ProjectServices _projectServices
+<div class="row">
+    <div class="col">
+        <h3 style="text-align:center;">Modifica proiect angajat</h3>
+    </div>
+</div>
+<div class="row">
+    <div class="col-2">
+
+    </div>
+    <div class="col-8">
+        <div class="container container-fluid">
+            <div class="nume">
+                <h6><b>Nume complet: </b>@emp.LastName @emp.FirstName</h6>
+            </div>
+            <form class="mt-3" style="width:100%; margin-left:80%">
+                <div class="proiect">
+                    <p>Lista proiecte</p>
+                    <select></select>
+                    @if(empProjectList == null)
+                    {
+                        <p><em>Loading...</em></p>
+                    }
+                    else
+                    {
+                        foreach(var proj in empProjectList)
+                        {
+                            <option>@proj.ProjectId - @projectList.Where(x => x.ProjectID == proj.ProjectId).Select(x => x.ProjectName).First()</option>
+                        }
+                    }
+                </div>
+            </form>
+        </div>
+    </div>
+    <div class="col-2">
+
+    </div>
+</div>
+@code {
+    [Parameter]
+    public int EmployeeID { get; set; }
+    /*
+    [Parameter]
+    public int ProjectID { get; set; }
+    */
+    int projectId;
+    EmployeeModel emp;
+    EmployeeProjectModel empProject;
+    IEnumerable<EmployeeProjectModel> empProjectList;
+    IEnumerable<ProjectModel> projectList;
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        emp = await _employeeServices.GetEmployeeById(EmployeeID);
+        empProjectList = await this._employeeProjectServices.GetEmployeeProjectsById(EmployeeID);
+        projectList = await this._projectServices.GetAllProjects();
+    }
+
+
+}

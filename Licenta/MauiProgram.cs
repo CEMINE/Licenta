@@ -28,6 +28,7 @@ namespace Licenta
 			builder.Services.AddSingleton<IDialogService, DialogService>();
 			builder.Services.AddSingleton<DepartmentServices>();
 			builder.Services.AddSingleton<JobServices>();
+			builder.Services.AddSingleton<EmployeeProjectServices>();
 			return builder.Build();
 		}
 	}

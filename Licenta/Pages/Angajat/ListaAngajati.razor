@@ -5,6 +5,8 @@
 @using System.Diagnostics
 @inject WeatherForecastService ForecastService
 @inject EmployeeServices _employeeServices
+@inject DepartmentServices _depServices
+@inject JobServices _jobServices
 @inject IDialogService DialogService
 @inject NavigationManager navManager
 
@@ -13,10 +15,9 @@
 
 Iata cateva date despre angajati.
 <br />
-<button class="btn btn-primary" @onclick="TestAddEmployee">Test</button>
 <br />
 
-@if (employeeList == null)
+@if (employeeList == null || departmentList == null || jobList == null)
 {
 	<p><em>Loading...</em></p>
 }
@@ -29,6 +30,9 @@ else
 				<tr>
 					<th style="width:8vw; padding: 0 0 0 0;">Nume</th>
 					<th style="width:8vw; padding: 0 0 0 0;">Prenume</th>
+					<th style="width:8vw; padding: 0 0 0 0;">Varsta</th>
+					<th style="width:8vw; padding: 0 0 0 0;">Departament</th>
+					<th style="width:8vw; padding: 0 0 0 0;">Rol</th>
 					<th style="width:8vw; padding: 0 0 0 0;">Edit</th>
 					<th style="width:8vw; padding: 0 0 0 0;">Delete</th>
 
@@ -38,11 +42,18 @@ else
 			<tbody>
 				@foreach (EmployeeModel emp in employeeList)
 				{
+					string depName = departmentList.Where(x => x.DepartmentID == emp.DepartmentID).Select(d => d.DepartmentName).First();
+					string jobTitle = jobList.Where(x => x.JobID == emp.JobID).Select(j => j.JobTitle).First();
+					
 					<tr>
 						<td>@emp.FirstName</td>
 						<td>@emp.LastName</td>
+						<td>@emp.Age</td>
+						<td>@depName</td>
+						<td>@jobTitle</td>						
 						<td><button class="btn btn-primary" @onclick=@(()=> UpdateEmployee(emp))>Edit</button></td>
 						<td><button class="btn btn-danger" @onclick=@(()=> DeleteEmployee(emp))>Delete</button></td>
+						<td><button class="btn btn-info" @onclick=@(() => AboutEmployee(emp))>Detalii</button></td>
 
 					</tr>
 				}
@@ -54,25 +65,28 @@ else
 
 
 @code {
+	//@departmentList.Where(x => x.DepartmentID == emp.DepartmentID).Select(d => d.DepartmentName).First();
+	//@jobList.Where(x => x.JobID == emp.JobID).Select(j => j.JobTitle).First();
 	bool loaded = false;
 	List<EmployeeModel> employeeList;
+	IEnumerable<DepartmentModel> departmentList;
+	IEnumerable<JobModel> jobList;
 	public async void GetAllEmployees()
 	{
-		employeeList = await this._employeeServices.GetAllEmployees();        
-	}
+		employeeList = await this._employeeServices.GetAllEmployees();
 
-	public async void Test()
-	{
-		await DialogService.DisplayConfirm("Test", "test", "yes", "cancel");
 	}
 
 	protected override async Task OnInitializedAsync()
 	{
 		employeeList = await _employeeServices.GetAllEmployees();
+		departmentList = await this._depServices.GetAllDepartments();
+		jobList = await this._jobServices.GetAllJobs();
+		Debug.WriteLine("Liste incarcate!!!");
 	}
-
+	/*
 	public async void TestAddEmployee()
-	{
+		{
 		EmployeeModel emp = new EmployeeModel();
 		emp.FirstName = "FTest";
 		emp.LastName = "LTest";
@@ -85,11 +99,16 @@ else
 		Debug.WriteLine("angajat adaugat");
 
 	}
-
+	*/
 	public void UpdateEmployee(EmployeeModel e)
 	{
 		navManager.NavigateTo($"updateangajat/{e.EmployeeID}");
 		Debug.WriteLine($"emp id de la index {e.EmployeeID}");
+	}
+
+	public void AboutEmployee(EmployeeModel e )
+	{
+		navManager.NavigateTo($"/detaliiangajat/{e.EmployeeID}");
 	}
 
 	public async void DeleteEmployee(EmployeeModel e)
@@ -99,9 +118,43 @@ else
 		this.StateHasChanged();
 	}
 
+	public async Task<string> GetDepartmentTitle(int depId)
+	{
+		DepartmentModel departmentData = await _depServices.GetDepartmentById(depId);
+
+		if (departmentData != null)
+		{
+			Debug.WriteLine(departmentData.DepartmentName);
+			return departmentData.DepartmentName;
+		}
+		else
+		{
+			Debug.WriteLine("Department not found");
+			return "Department not found";
+		}
+
+	}
+
+	public async Task<string> GetJobTitle(int jobId)
+	{
+		JobModel jobData = await _jobServices.GetJobById(jobId);
+
+		if (jobData != null)
+		{
+			Debug.WriteLine(jobData.JobTitle);
+			return jobData.JobTitle;
+		}
+		else
+		{
+			Debug.WriteLine("Job not found");
+			return "Job not found";
+		}
+    }
+}
+
 
     
 
-}
+
 
 

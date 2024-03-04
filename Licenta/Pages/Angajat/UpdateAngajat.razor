@@ -118,8 +118,6 @@
     EmployeeModel employee = new EmployeeModel();
     List<DepartmentModel> departmentList;
     List<JobModel> jobList;
-    //public DateTime birthDate { get; set; } = DateTime.Now;
-    //public DateTime hireDate { get; set; } = DateTime.Now;
 
     protected override async Task OnInitializedAsync()
     {
@@ -169,13 +167,13 @@
     public void DepartmentHandler(ChangeEventArgs e)
     {
         employee.DepartmentID = Convert.ToInt32(e.Value);
-        DialogAlert.DisplayConfirm("titlu", $"{employee.DepartmentID} ", "da", "nu");
+        //DialogAlert.DisplayConfirm("titlu", $"{employee.DepartmentID} ", "da", "nu");
     }
 
     public void JobHandler(ChangeEventArgs e)
     {
         employee.JobID = Convert.ToInt32(e.Value);
-        DialogAlert.DisplayConfirm("titlu", $"{employee.JobID} ", "da", "nu");
+        //DialogAlert.DisplayConfirm("titlu", $"{employee.JobID} ", "da", "nu");
     }
 
 

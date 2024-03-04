@@ -55,6 +55,38 @@ namespace Licenta.Services
 
         }
 
+		public async Task<DepartmentModel> GetDepartmentById(int departmentId)
+		{
+			try
+			{
+
+				DepartmentModel currentDepartment = new DepartmentModel();
+
+				string fullUrl = this.baseUrl + $"GetDepartmentById/{departmentId}";
+
+				HttpClient httpClient = new HttpClient();
+
+				httpClient.BaseAddress = new Uri(fullUrl);
+				httpClient.Timeout = TimeSpan.FromSeconds(30);
+
+				HttpResponseMessage httpResponseMessage = await httpClient.GetAsync("");
+
+				if (httpResponseMessage.IsSuccessStatusCode)
+				{
+					string contentRespone = await httpResponseMessage.Content.ReadAsStringAsync();
+
+					currentDepartment = JsonConvert.DeserializeObject<DepartmentModel>(contentRespone);
+					
+				}
+
+				return await Task.FromResult(currentDepartment);
+			}
+			catch (Exception)
+			{
+				return null;
+			}
+		}
+
 		public async Task<DepartmentModel> AddDepartment(DepartmentModel departmentModel)
 		{
 			try

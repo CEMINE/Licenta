@@ -1,4 +1,5 @@
-﻿using Licenta.Data;
+﻿using Licenta.Components;
+using Licenta.Data;
 using Licenta.Services;
 using Microsoft.Extensions.Logging;
 
@@ -31,6 +32,7 @@ namespace Licenta
 			builder.Services.AddSingleton<JobServices>();
 			builder.Services.AddSingleton<EmployeeProjectServices>();
 			builder.Services.AddSingleton<ProjectServices>();
+			builder.Services.AddSingleton<AddProjectButton>();
 			return builder.Build();
 		}
 	}

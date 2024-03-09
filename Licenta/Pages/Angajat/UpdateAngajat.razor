@@ -13,7 +13,6 @@
 @inject IDialogService DialogAlert
 @inject NavigationManager navManager
 
-<RadzenButton Click=@Test>Test </RadzenButton>
 
 <div class="container container-fluid align-items-center justify-content-center">
     <div class="row">
@@ -27,10 +26,10 @@
         </div>
         <div class="col-8 d-flex align-items-center" style="border:1px solid black">
             <div class="date justify-content-center align-items-center" style="left:50%">
-                <form class="mt-3" style="width:100%; margin-left:80%">
+                <form class="mt-3" style="width:100%; margin-left:62%">
                     <div class="form-group">
                         <label for="nume">Nume</label>
-                        <input @bind-value="@employee.FirstName" style="width:20vw" type="text" class="form-control" id="nume" aria-describedby="emailHelp" placeholder="Nume">
+                        <input @bind-value="@employee.FirstName"  type="text" class="form-control" id="nume" aria-describedby="emailHelp" placeholder="Nume">
 
                     </div>
                     <div class="form-group mt-2">
@@ -93,11 +92,11 @@
 
                     <div class="mb-3 mt-2 form-group">
                         <label for="birthdate">Data nasterii</label>
-                        <input class="form-control" name="birthdate" style="width:20vw;" TValue="@DateTime.Now" type="date" @bind-value="@employee.BirthDate" @bind-value:event="oninput" />
+                        <input class="form-control" name="birthdate"  TValue="@DateTime.Now" type="date" @bind-value="@employee.BirthDate" @bind-value:event="oninput" />
                     </div>
                     <div class="mb-3 mt-2 form-group">
                         <label for="hiredate">Data angajarii</label>
-                        <input class="form-control" name="hiredate" style="width:20vw;" TValue="DateTime" type="date" @bind-value="@employee.HireDate" @bind-value:event="oninput" />
+                        <input class="form-control" name="hiredate"  TValue="DateTime" type="date" @bind-value="@employee.HireDate" @bind-value:event="oninput" />
                     </div>
                     <div class="mb-3 mt-2 form-group">
                         
@@ -111,29 +110,53 @@
                             {
                                 int currentIndex = i;
                                 <label for="proiect">Proiect @i</label>
-                                <select id="proiect" class="form-control" @onchange="@(e => ProjectHandler(e, currentIndex))">
+                                <div style="display:flex;">
                                     
-                                    @foreach (var item in projectList)
-                                    {
-                                        //Debug.WriteLine($"project counter {projectCounter}");
-                                        if (item.ProjectID == employeeProjectsList[i].ProjectId)
+                                    <select id="proiect" class="form-control" @onchange="@(e => ProjectHandler(e, currentIndex))">
+                                    
+                                        @foreach (var item in projectList)
                                         {
-                                            <option selected value="@item.ProjectID">@item.ProjectID / @item.ProjectName</option>
-                                            selectedValues.Add(item.ProjectID);
+                                            //Debug.WriteLine($"project counter {projectCounter}");
+                                            if (item.ProjectID == employeeProjectsList[i].ProjectId)
+                                            {
+                                                <option selected value="@item.ProjectID">@item.ProjectID / @item.ProjectName</option>
+                                                selectedValues.Add(item.ProjectID);
 
-                                            //Debug.WriteLine($"id item {i}: {item.ProjectID}");
-                                            //Debug.WriteLine($"{employeeProjectsList[i].ProjectId} / {item.ProjectName}");
+                                                //Debug.WriteLine($"id item {i}: {item.ProjectID}");
+                                                //Debug.WriteLine($"{employeeProjectsList[i].ProjectId} / {item.ProjectName}");
+                                            }
+                                            else if (employeeProjectsList.Select(x => x.ProjectId).Contains(item.ProjectID))
+                                            {
+                                                <option disabled value="@item.ProjectID">@item.ProjectID / @item.ProjectName</option>
+                                            }
+                                            else
+                                            {
+                                                <option value="@item.ProjectID">@item.ProjectID / @item.ProjectName</option>
+                                            }
                                         }
-                                        else
-                                        {
-                                            <option value="@item.ProjectID">@item.ProjectID / @item.ProjectName</option>
-                                        }
-                                    }
-                                </select>
-                                <AddProjectButton>+</AddProjectButton>
-                                
+                                    </select>
+                                    <button class="btn btn-danger"  @onclick="@(() => DeleteProject(currentIndex))">Sterge</button>
+                                </div>
                                 <br />
                             }
+                            
+                            <RadzenButton Click=@ToggleVisibility Text="Adauga proiect"></RadzenButton>
+                            <div style="display: @(divHidden ? "none" : "block");" class="mt-3">
+                                <select class="form-control" @onchange="@(e => AddProjectToEmployee(e))">
+                                @foreach(var item in projectList)
+                                {
+                                     if(employeeProjectsList.Select(x=>x.ProjectId).Contains(item.ProjectID))
+                                     {
+                                         <option disabled value="@item.ProjectID">@item.ProjectID / @item.ProjectName</option>
+                                     }
+                                     else
+                                     {
+                                         <option value="@item.ProjectID">@item.ProjectID / @item.ProjectName</option>
+                                     }
+
+                                }
+                                </select>
+                            </div>
 
                         }
                         
@@ -164,10 +187,11 @@
     List<JobModel> jobList;
     IEnumerable<ProjectModel> projectList;
     List<EmployeeProjectModel> employeeProjectsList;
-    int projId = 0;
     EmployeeProjectModel empProjOld = new EmployeeProjectModel();
     EmployeeProjectModel empProjNew = new EmployeeProjectModel();
     List<int> selectedValues = new List<int>();
+    bool btnHidden = false;
+    bool divHidden = true;
 
 
 
@@ -232,9 +256,26 @@
         //DialogAlert.DisplayConfirm("titlu", $"{employee.JobID} ", "da", "nu");
     }
 
+    public async void AddProjectToEmployee(ChangeEventArgs e)
+    {
+        if (Convert.ToInt32(e.Value) == null || Convert.ToInt32(e.Value) < 1)
+        {
+            Debug.WriteLine("da");
+            return;
+        }
+
+        EmployeeProjectModel emp = new EmployeeProjectModel();
+        emp.EmployeeId = EmployeeID;
+        emp.ProjectId = Convert.ToInt32(e.Value);
+        Debug.WriteLine($"emp id{emp.EmployeeId} proj id {emp.ProjectId}");
+        await this._employeeProjectServices.AddEmployeeProject(emp);
+        ReloadPage();
+    }
+
     public void ReloadPage()
     {
         navManager.NavigateTo($"updateangajat/{EmployeeID}", true);
+
     }
 
     public async void ProjectHandler(ChangeEventArgs e, int oldProjectId)
@@ -259,25 +300,18 @@
         //await this._employeeProjectServices.UpdateEmployeeProject(EmployeeID, )
     }
 
-
-    public async void Testare()
+    public async void DeleteProject(int index)
     {
-
-
-        employee = await _employeeServices.GetEmployeeById(103);
-        await DialogAlert.DisplayConfirm("titlu", $"{employee.EmployeeID} / {EmployeeID} ", "da", "nu");
-    }
-
-    public async void Test()
-    {
-        EmployeeProjectModel epm = new EmployeeProjectModel();
-        epm.ProjectId = 6;
-        epm.EmployeeId = EmployeeID;
-
-        await this._employeeProjectServices.UpdateEmployeeProject(EmployeeID, 2, epm);
-        
+        await this._employeeProjectServices.DeleteEmployeeProject(EmployeeID, employeeProjectsList[index].ProjectId);
         ReloadPage();
     }
+
+    public void ToggleVisibility()
+    {
+        btnHidden = !btnHidden;
+        divHidden = !divHidden;
+    }
+
 
 
 

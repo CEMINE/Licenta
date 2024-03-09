@@ -1,29 +1,33 @@
 ﻿<!-- ProjectDropdown.razor -->
 @inherits ComponentBase
+@using Licenta.Models
+@using Licenta.Services
+@inject EmployeeProjectServices _employeeProjectServices
 
 <select class="form-control" @onchange="HandleSelection">
-    @foreach (var item in projectList)
+    @foreach (var item in ProjectList)
     {
-        if (item.ProjectID == selectedProjectId)
-        {
-            <option selected value="@item.ProjectID">@item.ProjectID / @item.ProjectName</option>
-        }
-        else
-        {
-            <option value="@item.ProjectID">@item.ProjectID / @item.ProjectName</option>
-        }
+
+         <option selected value="@item.ProjectID">@item.ProjectID / @item.ProjectName</option>
+
+
     }
 </select>
 
 @code {
-    [Parameter] public List<Project> ProjectList { get; set; } // Replace 'Project' with the actual type of your items
-    [Parameter] public int SelectedProjectId { get; set; }
+    [Parameter] public IEnumerable<ProjectModel> ProjectList { get; set; } // Replace 'Project' with the actual type of your items
+    //[Parameter] public int SelectedProjectId { get; set; }
     [Parameter] public EventCallback<int> OnSelectionChanged { get; set; }
+    [Parameter] public int EmpID { get; set; }
 
     private async Task HandleSelection(ChangeEventArgs e)
     {
+        EmployeeProjectModel emp = new EmployeeProjectModel();
+        emp.EmployeeId = EmpID;
+        emp.ProjectId = Convert.ToInt32(e.Value);
+        await this._employeeProjectServices.AddEmployeeProject(emp);
         var selectedValue = int.Parse(e.Value.ToString());
-        SelectedProjectId = selectedValue;
+        //SelectedProjectId = selectedValue;
         await OnSelectionChanged.InvokeAsync(selectedValue);
     }
 }

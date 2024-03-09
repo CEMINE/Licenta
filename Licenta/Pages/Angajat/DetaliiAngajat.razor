@@ -12,7 +12,6 @@
 @inject IDialogService DialogAlert
 @inject NavigationManager navManager
 
-<button class="btn btn-primary" @onclick="Test">Test</button>
 <div class="row">
     <div class="col">
         <h1 style="text-align:center;">Detalii angajat</h1>
@@ -53,10 +52,12 @@
                 }
                 else
                 {
-                    foreach(var project in employeeProjectList)
-                    {
-                        <p @onclick="EditEmployeeProject">@project.ProjectId / @projectList.Where(x => x.ProjectID == project.ProjectId).Select(z => z.ProjectName).First()</p>
-                    }
+                    <ul class="list-group">
+                        @foreach(var project in employeeProjectList)
+                        {
+                            <li class="list-group-item" style="width: 20vw;">@project.ProjectId / @projectList.Where(x => x.ProjectID == project.ProjectId).Select(z => z.ProjectName).First()</li>
+                        }
+                    </ul>
                     
                 }
             </div>
@@ -77,6 +78,7 @@
     IEnumerable<ProjectModel> projectList;
     string depName; 
     string jobTitle; 
+
     protected override async Task OnInitializedAsync()
     {
         emp = await this._employeeServices.GetEmployeeById(EmployeeID);
@@ -88,14 +90,6 @@
         projectList = await this._projectServices.GetAllProjects();
         //Debug.WriteLine($"emp id {employee.EmployeeID} / {EmployeeID}");
         this.StateHasChanged();
-    }
-
-    public async void Test()
-    {
-        EmployeeProjectModel testEmp = new EmployeeProjectModel();
-        testEmp.ProjectId = 1;
-        testEmp.EmployeeId = 104;
-        await _employeeProjectServices.UpdateEmployeeProject(104, 3, testEmp);
     }
 
     public void EditEmployeeProject()

@@ -1,0 +1,29 @@
+﻿<!-- ProjectDropdown.razor -->
+@inherits ComponentBase
+
+<select class="form-control" @onchange="HandleSelection">
+    @foreach (var item in projectList)
+    {
+        if (item.ProjectID == selectedProjectId)
+        {
+            <option selected value="@item.ProjectID">@item.ProjectID / @item.ProjectName</option>
+        }
+        else
+        {
+            <option value="@item.ProjectID">@item.ProjectID / @item.ProjectName</option>
+        }
+    }
+</select>
+
+@code {
+    [Parameter] public List<Project> ProjectList { get; set; } // Replace 'Project' with the actual type of your items
+    [Parameter] public int SelectedProjectId { get; set; }
+    [Parameter] public EventCallback<int> OnSelectionChanged { get; set; }
+
+    private async Task HandleSelection(ChangeEventArgs e)
+    {
+        var selectedValue = int.Parse(e.Value.ToString());
+        SelectedProjectId = selectedValue;
+        await OnSelectionChanged.InvokeAsync(selectedValue);
+    }
+}

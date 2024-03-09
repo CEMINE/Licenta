@@ -1,0 +1,9 @@
+﻿<!-- SelectComponent.razor -->
+@using Licenta.Models
+
+
+@code {
+    [Parameter] public string SelectedValue { get; set; }
+    [Parameter] public EventCallback<string> SelectedValueChanged { get; set; }
+    [Parameter] public List<ProjectModel> ProjectList { get; set; } // Replace 'Project' with the actual type of your items
+}

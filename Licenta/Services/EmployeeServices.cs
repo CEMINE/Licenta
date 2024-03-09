@@ -115,6 +115,7 @@ namespace Licenta.Services
             }
         }
 
+
         public async Task<EmployeeModel> UpdateEmployee(EmployeeModel employeeInfo)
         {
             try
@@ -145,6 +146,8 @@ namespace Licenta.Services
                 return null;
             }
         }
+
+        
 
         public async Task<bool> DeleteEmployee(EmployeeModel empInfo)
         {

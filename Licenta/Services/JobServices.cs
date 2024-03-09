@@ -30,9 +30,9 @@ namespace Licenta.Services
                 string fullUrl = this.baseUrl + "GetAllJobs";
 
                 HttpClient httpClient = new HttpClient();
-                Debug.WriteLine("baseurl" + baseUrl);
-                Debug.WriteLine("Full url " + fullUrl);
-                Debug.WriteLine($"platforma: {DeviceInfo.Platform}");
+                //Debug.WriteLine("baseurl" + baseUrl);
+                //Debug.WriteLine("Full url " + fullUrl);
+                //Debug.WriteLine($"platforma: {DeviceInfo.Platform}");
                 httpClient.BaseAddress = new Uri(fullUrl);
                 httpClient.Timeout = TimeSpan.FromSeconds(30);
 
@@ -43,7 +43,7 @@ namespace Licenta.Services
                     string contentResponse = await httpResponseMessage.Content.ReadAsStringAsync();
 
                     jobList = JsonConvert.DeserializeObject<List<JobModel>>(contentResponse);
-                    Debug.WriteLine("Conectiune realizata cu success!");
+                    //Debug.WriteLine("Conectiune realizata cu success!");
                 }
 
                 return await Task.FromResult(jobList.ToList());

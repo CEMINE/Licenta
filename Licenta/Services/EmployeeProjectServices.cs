@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 using Microsoft.Maui.ApplicationModel.Communication;
+using System.Diagnostics;
 
 namespace Licenta.Services
 {
@@ -70,14 +71,15 @@ namespace Licenta.Services
 
                 if (httpResponseMessage.IsSuccessStatusCode)
                 {
+                    Debug.WriteLine(httpResponseMessage.Content);
                     return await Task.FromResult(employee);
                 }
 
                 return await Task.FromResult(new EmployeeProjectModel());
             }
-            catch (Exception)
+            catch (Exception e)
             {
-
+                Debug.WriteLine($"exceptie addemployeeproject: {e.Message}");
                 throw;
             }
         }
@@ -88,7 +90,7 @@ namespace Licenta.Services
             {
                 List<EmployeeProjectModel> employeeProjectsList = new List<EmployeeProjectModel>();
 
-                string fullUrl = this.baseUrl + "GetAllEmployeesProjects";
+                string fullUrl = this.baseUrl + $"GetEmployeeProjectsById/{employeeId}";
 
                 HttpClient httpClient = new HttpClient();
                 //Debug.WriteLine("baseurl" + baseUrl);
@@ -114,8 +116,8 @@ namespace Licenta.Services
                 throw;
             }
         }
-
-        public async Task<EmployeeProjectModel> UpdateEmployeeProject(int empId, int projectId, EmployeeProjectModel employeeInfo)
+        /*
+        public async Task<EmployeeProjectModel> UpdateEmployeeProject(int oldEmpId, int oldProjectId, EmployeeProjectModel employeeInfo)
         {
             try
             {
@@ -138,17 +140,49 @@ namespace Licenta.Services
                 {
                     return await Task.FromResult(employeeInfo);
                 }
-                */
-                await this.DeleteEmployeeProject(empId, projectId);
+                
+                await this.DeleteEmployeeProject(oldEmpId, oldProjectId);
+                Debug.WriteLine($"Inregistrarea cu emp id: {oldEmpId} si project id: {oldProjectId} a fost stearsa");
                 await this.AddEmployeeProject(employeeInfo);
+                Debug.WriteLine($"Inregistrarea cu emp id: {employeeInfo.EmployeeId} si project id: {employeeInfo.ProjectId} a fost adaugata");
 
                 return await Task.FromResult(new EmployeeProjectModel());
             }
-            catch (Exception)
+            catch (Exception e)
             {
+                Debug.WriteLine($"{e.Message}");
                 return null;
             }
         }
+        */
+
+        public async Task<bool> UpdateEmployeeProject(int employeeId, int oldProjectId, EmployeeProjectModel epm)
+        {
+            try
+            {
+
+                string fullUrl = this.baseUrl + $"EditEmployeeProject/{employeeId}/{oldProjectId}";
+
+                string employeeProjectAsJson = JsonConvert.SerializeObject(epm);
+
+                StringContent employeeProjectStringContent = new StringContent(employeeProjectAsJson, Encoding.UTF8, "application/json");
+
+                using (HttpClient httpClient = new HttpClient())
+                {
+                    httpClient.BaseAddress = new Uri(fullUrl);
+                    httpClient.Timeout = TimeSpan.FromSeconds(30);
+
+                    HttpResponseMessage httpResponseMessage = await httpClient.PutAsync("", employeeProjectStringContent);
+
+                    return httpResponseMessage.IsSuccessStatusCode;
+                }
+            }
+            catch (Exception)
+            {
+                return false;
+            }
+        }
+
 
         public async Task<bool> DeleteEmployeeProject(int empId, int projectId)
         {

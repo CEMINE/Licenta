@@ -4,6 +4,7 @@
 @using Licenta.Services
 @using System.Data
 @using System.Diagnostics
+@using Licenta.Components
 @inject DepartmentServices _departmentServices
 @inject JobServices _jobServices
 @inject EmployeeServices _employeeServices
@@ -11,6 +12,8 @@
 @inject ProjectServices _projectServices
 @inject IDialogService DialogAlert
 @inject NavigationManager navManager
+
+<RadzenButton Click=@Test>Test </RadzenButton>
 
 <div class="container container-fluid align-items-center justify-content-center">
     <div class="row">
@@ -98,30 +101,38 @@
                     </div>
                     <div class="mb-3 mt-2 form-group">
                         
-                        @if (empProjectList == null || projectList == null)
+                        @if (employeeProjectsList == null || projectList == null)
                         {
                             <p>Loading</p>
                         }
                         else
                         {
-                            @foreach(var empProject in empProjectList)
+                            @for (int i = 0; i < employeeProjectsList.Distinct().Count(); i++)
                             {
-                                if(empProject.EmployeeId == EmployeeID)
-                                {
-                                    <select class="form-control">
-                                        @foreach(var proj in projectList)
+                                int currentIndex = i;
+                                <label for="proiect">Proiect @i</label>
+                                <select id="proiect" class="form-control" @onchange="@(e => ProjectHandler(e, currentIndex))">
+                                    
+                                    @foreach (var item in projectList)
+                                    {
+                                        //Debug.WriteLine($"project counter {projectCounter}");
+                                        if (item.ProjectID == employeeProjectsList[i].ProjectId)
                                         {
-                                         if(empProject.ProjectId == proj.ProjectID)
-                                            {
-                                                <option value="@empProject.ProjectId" selected>@proj.ProjectName</option>
-                                            }
-                                         else
-                                           {
-                                                <option value="@empProject.ProjectId">@proj.ProjectName</option>         
-                                           }
+                                            <option selected value="@item.ProjectID">@item.ProjectID / @item.ProjectName</option>
+                                            selectedValues.Add(item.ProjectID);
+
+                                            //Debug.WriteLine($"id item {i}: {item.ProjectID}");
+                                            //Debug.WriteLine($"{employeeProjectsList[i].ProjectId} / {item.ProjectName}");
                                         }
-                                    </select>
-                                }
+                                        else
+                                        {
+                                            <option value="@item.ProjectID">@item.ProjectID / @item.ProjectName</option>
+                                        }
+                                    }
+                                </select>
+                                <AddProjectButton>+</AddProjectButton>
+                                
+                                <br />
                             }
 
                         }
@@ -152,8 +163,13 @@
     List<DepartmentModel> departmentList;
     List<JobModel> jobList;
     IEnumerable<ProjectModel> projectList;
-    IEnumerable<EmployeeProjectModel> empProjectList;
-    IEnumerable<EmployeeProjectModel> currentEmployeeProjects;
+    List<EmployeeProjectModel> employeeProjectsList;
+    int projId = 0;
+    EmployeeProjectModel empProjOld = new EmployeeProjectModel();
+    EmployeeProjectModel empProjNew = new EmployeeProjectModel();
+    List<int> selectedValues = new List<int>();
+
+
 
 
     protected override async Task OnInitializedAsync()
@@ -164,11 +180,13 @@
         jobList = await _jobServices.GetAllJobs();
         employee = await _employeeServices.GetEmployeeById(EmployeeID);
         //Debug.WriteLine($"emp id {employee.EmployeeID} / {EmployeeID}");
-        empProjectList = await this._employeeProjectServices.GetAllEmployeesProjects();
+        employeeProjectsList = await this._employeeProjectServices.GetEmployeeProjectsById(EmployeeID);
         projectList = await this._projectServices.GetAllProjects();
-        currentEmployeeProjects = empProjectList.Where(x => x.EmployeeId == EmployeeID);
+
+        //currentEmployeeProjects = empProjectList.Where(x => x.EmployeeId == EmployeeID);
         this.StateHasChanged();
     }
+
 
 
 
@@ -191,49 +209,74 @@
 
         //Debug.WriteLine($"employee dep id {employee.DepartmentID} / emp job id {employee.JobID}");
         await _employeeServices.UpdateEmployee(employee);
-        navManager.NavigateTo("");
+        navManager.NavigateTo("/listaemp");
 
     }
-    /*
-    int jobId, departmentId;
-    public void TestSelectJob(int x)
-        {
-        jobId = x;
 
-        DialogAlert.DisplayConfirm("titlu",$"jobid: {jobId} ","da", "nu");
-    }
-    */
 
-    public void DepartmentHandler(ChangeEventArgs e)
+    public async void DepartmentHandler(ChangeEventArgs e)
     {
         employee.DepartmentID = Convert.ToInt32(e.Value);
+        await _employeeServices.UpdateEmployee(employee);
+        ReloadPage();
         //DialogAlert.DisplayConfirm("titlu", $"{employee.DepartmentID} ", "da", "nu");
     }
 
-    public void JobHandler(ChangeEventArgs e)
+
+
+    public async void JobHandler(ChangeEventArgs e)
     {
         employee.JobID = Convert.ToInt32(e.Value);
+        await _employeeServices.UpdateEmployee(employee);
+        ReloadPage();
         //DialogAlert.DisplayConfirm("titlu", $"{employee.JobID} ", "da", "nu");
     }
 
-    public async void ProjectHandler(ChangeEventArgs e)
+    public void ReloadPage()
+    {
+        navManager.NavigateTo($"updateangajat/{EmployeeID}", true);
+    }
+
+    public async void ProjectHandler(ChangeEventArgs e, int oldProjectId)
     {
         EmployeeProjectModel epm = new EmployeeProjectModel();
         epm.EmployeeId = EmployeeID;
         epm.ProjectId = Convert.ToInt32(e.Value);
+        for (int i = 0; i < employeeProjectsList.Distinct().Count(); i++)
+        {
+            if (Convert.ToInt32(e.Value) == employeeProjectsList[i].ProjectId)
+            {
+                await DialogAlert.DisplayConfirm("Eroare!", "Acest angajat lucreaza deja la acest proiect!", "Ok.", "da");
+                return;
+            }
+        }
+        Debug.WriteLine($"project handler / valori noi: emp id {epm.EmployeeId} - proj id {epm.ProjectId} / valori vechi {selectedValues[oldProjectId]} / valoare noua {e.Value}");
+        await DialogAlert.DisplayConfirm("test", $"valoare veche{selectedValues[oldProjectId]} / valoare noua{e.Value}", "da", "nu");
+        await this._employeeProjectServices.UpdateEmployeeProject(EmployeeID, selectedValues[oldProjectId], epm);
+        await OnInitializedAsync();
+        this.StateHasChanged();
+        ReloadPage();
         //await this._employeeProjectServices.UpdateEmployeeProject(EmployeeID, )
     }
 
 
     public async void Testare()
     {
-        /*
-        employee = await _employeeServices.GetEmployeeById(EmployeeID);
-        await DialogAlert.DisplayConfirm("titlu", $"{employee.EmployeeID} / {EmployeeID} ", "da", "nu");
-        */
+
 
         employee = await _employeeServices.GetEmployeeById(103);
         await DialogAlert.DisplayConfirm("titlu", $"{employee.EmployeeID} / {EmployeeID} ", "da", "nu");
+    }
+
+    public async void Test()
+    {
+        EmployeeProjectModel epm = new EmployeeProjectModel();
+        epm.ProjectId = 6;
+        epm.EmployeeId = EmployeeID;
+
+        await this._employeeProjectServices.UpdateEmployeeProject(EmployeeID, 2, epm);
+        
+        ReloadPage();
     }
 
 

@@ -12,6 +12,7 @@
 @inject ProjectServices _projectServices
 @inject IDialogService DialogAlert
 @inject NavigationManager navManager
+@inject NotificationService notification
 
 
 <div class="container container-fluid align-items-center justify-content-center">
@@ -26,7 +27,7 @@
         </div>
         <div class="col-8 d-flex align-items-center" style="border:1px solid black">
             <div class="date justify-content-center align-items-center" style="left:50%">
-                <form class="mt-3" style="width:100%; margin-left:62%">
+                <form class="mt-3" style="width:100%; margin-left:48%">
                     <div class="form-group">
                         <label for="nume">Nume</label>
                         <input @bind-value="@employee.FirstName"  type="text" class="form-control" id="nume" aria-describedby="emailHelp" placeholder="Nume">
@@ -135,14 +136,18 @@
                                             }
                                         }
                                     </select>
-                                    <button class="btn btn-danger"  @onclick="@(() => DeleteProject(currentIndex))">Sterge</button>
+                                    <button class="btn btn-danger" style="margin-left:10px;"  @onclick="@(() => DeleteProject(currentIndex))">Sterge</button>
                                 </div>
                                 <br />
                             }
                             
-                            <RadzenButton Click=@ToggleVisibility Text="Adauga proiect"></RadzenButton>
+                            <div>
+                                <RadzenButton Click=@ToggleVisibility Text="Adauga proiect"></RadzenButton>
+                                <RadzenButton Click=@UpdateEmployee Text="Salveaza modificari" ButtonStyle="ButtonStyle.Success" Shade="Shade.Dark" Style="font-family:Arial"></RadzenButton>
+                            </div>
                             <div style="display: @(divHidden ? "none" : "block");" class="mt-3">
                                 <select class="form-control" @onchange="@(e => AddProjectToEmployee(e))">
+                                    <option selected value="0">Alege un proiect</option>
                                 @foreach(var item in projectList)
                                 {
                                      if(employeeProjectsList.Select(x=>x.ProjectId).Contains(item.ProjectID))
@@ -152,6 +157,7 @@
                                      else
                                      {
                                          <option value="@item.ProjectID">@item.ProjectID / @item.ProjectName</option>
+                                         
                                      }
 
                                 }
@@ -164,7 +170,7 @@
 
 
 
-                    <button type="submit" class="btn btn-primary" @onclick="UpdateEmployee">Submit</button>
+                    
                 </form>
             </div>
         </div>
@@ -181,7 +187,7 @@
 @code {
     [Parameter]
     public int EmployeeID { get; set; }
-
+    [Parameter] public int Time { get; set; } = 5;
     EmployeeModel employee = new EmployeeModel();
     List<DepartmentModel> departmentList;
     List<JobModel> jobList;
@@ -211,6 +217,10 @@
         this.StateHasChanged();
     }
 
+    async Task PutTaskDelay()
+    {
+        await Task.Delay(2000);
+    }
 
 
 
@@ -233,6 +243,8 @@
 
         //Debug.WriteLine($"employee dep id {employee.DepartmentID} / emp job id {employee.JobID}");
         await _employeeServices.UpdateEmployee(employee);
+        notification.Notify(NotificationSeverity.Success, "Succes!", "Modificarile au fost salvate cu succes!", 5000);
+        await PutTaskDelay();
         navManager.NavigateTo("/listaemp");
 
     }
@@ -242,6 +254,8 @@
     {
         employee.DepartmentID = Convert.ToInt32(e.Value);
         await _employeeServices.UpdateEmployee(employee);
+        notification.Notify(NotificationSeverity.Success, "Succes!", "Modificarile au fost salvate cu succes!", 5000);
+        await PutTaskDelay();
         ReloadPage();
         //DialogAlert.DisplayConfirm("titlu", $"{employee.DepartmentID} ", "da", "nu");
     }
@@ -252,6 +266,8 @@
     {
         employee.JobID = Convert.ToInt32(e.Value);
         await _employeeServices.UpdateEmployee(employee);
+        notification.Notify(NotificationSeverity.Success, "Succes!", "Modificarile au fost salvate cu succes!", 5000);
+        await PutTaskDelay();
         ReloadPage();
         //DialogAlert.DisplayConfirm("titlu", $"{employee.JobID} ", "da", "nu");
     }
@@ -269,6 +285,8 @@
         emp.ProjectId = Convert.ToInt32(e.Value);
         Debug.WriteLine($"emp id{emp.EmployeeId} proj id {emp.ProjectId}");
         await this._employeeProjectServices.AddEmployeeProject(emp);
+        notification.Notify(NotificationSeverity.Success, "Succes!", "Modificarile au fost salvate cu succes!", 5000);
+        await PutTaskDelay();
         ReloadPage();
     }
 
@@ -296,6 +314,8 @@
         await this._employeeProjectServices.UpdateEmployeeProject(EmployeeID, selectedValues[oldProjectId], epm);
         await OnInitializedAsync();
         this.StateHasChanged();
+        notification.Notify(NotificationSeverity.Success, "Succes!", "Modificarile au fost salvate cu succes!", 5000);
+        await PutTaskDelay();
         ReloadPage();
         //await this._employeeProjectServices.UpdateEmployeeProject(EmployeeID, )
     }
@@ -303,6 +323,8 @@
     public async void DeleteProject(int index)
     {
         await this._employeeProjectServices.DeleteEmployeeProject(EmployeeID, employeeProjectsList[index].ProjectId);
+        notification.Notify(NotificationSeverity.Success, "Succes!", "Modificarile au fost salvate cu succes!", 5000);
+        await PutTaskDelay();
         ReloadPage();
     }
 

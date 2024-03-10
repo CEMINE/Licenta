@@ -2,6 +2,7 @@
 using Licenta.Data;
 using Licenta.Services;
 using Microsoft.Extensions.Logging;
+using Radzen;
 
 namespace Licenta
 {
@@ -23,11 +24,11 @@ namespace Licenta
 		builder.Services.AddBlazorWebViewDeveloperTools();
 		builder.Logging.AddDebug();
 #endif
-
-			builder.Services.AddSingleton<WeatherForecastService>();
+			builder.Services.AddScoped<NotificationService>();
+            builder.Services.AddSingleton<WeatherForecastService>();
 
 			builder.Services.AddSingleton<EmployeeServices>();
-			builder.Services.AddSingleton<IDialogService, DialogService>();
+			builder.Services.AddSingleton<IDialogService, Services.DialogService>();
 			builder.Services.AddSingleton<DepartmentServices>();
 			builder.Services.AddSingleton<JobServices>();
 			builder.Services.AddSingleton<EmployeeProjectServices>();

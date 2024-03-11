@@ -228,9 +228,17 @@
     public async void UpdateEmployee()
     {
         if (employee.FirstName == null)
+        {
+            notification.Notify(NotificationSeverity.Error, "Eroare", $"Trebuie sa completati numele angajatului", 3000);
             return;
+        }
+
         if (employee.LastName == null)
+        {
+            notification.Notify(NotificationSeverity.Error, "Eroare", $"Trebuie sa completati prenumele angajatului", 3000);
             return;
+        }
+        
         if (employee.HireDate == null)
             return;
         if (employee.BirthDate == null)

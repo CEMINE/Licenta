@@ -16,6 +16,9 @@
 Iata cateva date despre angajati.
 <br />
 <br />
+<RadzenButton Text="Adauga angajat" Click=@NavigateAddEmp  Icon="add_circle_outline" ButtonStyle="ButtonStyle.Primary"></RadzenButton>
+<br />
+<br />
 
 @if (employeeList == null || departmentList == null || jobList == null)
 {
@@ -149,7 +152,12 @@ else
 			Debug.WriteLine("Job not found");
 			return "Job not found";
 		}
-    }
+	}
+
+	public void NavigateAddEmp()
+	{
+		navManager.NavigateTo("/adaugareangajat");
+	}
 }
 
 

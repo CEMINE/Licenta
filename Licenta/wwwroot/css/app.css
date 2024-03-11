@@ -1,4 +1,35 @@
 ﻿@import url('open-iconic/font/css/open-iconic-bootstrap.min.css');
+.bg-none {
+    background: none !important;
+}
+
+.rz-accordion-content {
+    background: rgba(0, 0, 0, 0.08) !important;
+    color: #ffffff;
+    font-size: 16px;
+}
+
+.rz-accordion-content-wrapper {
+    background: none !important;
+}
+
+.rz-accordion-header {
+    background: none !important;
+    color: #ffffff;
+    font-size: 36px;
+}
+
+.rz-accordion-header span, i {
+    color: #ffffff;
+}
+
+.rz-accordiontab-0 {
+    color: #ffffff;
+}
+
+.rz-accordion {
+    color: #ffffff !important;
+}
 
 html, body {
     font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;

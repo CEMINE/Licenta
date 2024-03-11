@@ -136,7 +136,7 @@
                                             }
                                         }
                                     </select>
-                                    <button class="btn btn-danger" style="margin-left:10px;"  @onclick="@(() => DeleteProject(currentIndex))">Sterge</button>
+                                    <RadzenButton  Icon="delete" Click=@(() => DeleteProject(currentIndex)) ButtonStyle="ButtonStyle.Danger" Shade="Shade.Dark" Style="margin-left: 10px; width:100px;"></RadzenButton>
                                 </div>
                                 <br />
                             }
@@ -161,7 +161,7 @@
                             </div>
                             <div>
                                 <RadzenButton Click=@ToggleVisibility Text="Adauga proiect" Icon="add_circle_outline" ButtonStyle="ButtonStyle.Primary"></RadzenButton>
-                                <RadzenButton Click=@UpdateEmployee Text="Salveaza modificari" ButtonStyle="ButtonStyle.Success" Shade="Shade.Dark" Style="font-family:Arial" Icon="save"></RadzenButton>
+                                <RadzenButton Click=@UpdateEmployee Text="Salveaza modificari" ButtonStyle="ButtonStyle.Success" Shade="Shade.Dark" Style="font-family:Arial; margin-left:30px;" Icon="save"></RadzenButton>
                             </div>
                             
 

@@ -10,9 +10,22 @@
 <div class="@NavMenuCssClass" @onclick="ToggleNavMenu">
     <nav class="flex-column">
         <div class="nav-item px-3">
-            <NavLink class="nav-link" href="listaemp" Match="NavLinkMatch.All">
-                <span class="oi oi-home" aria-hidden="true"></span> Lista Angajati
-            </NavLink>
+            <RadzenAccordion>
+                <Items>
+                    <RadzenAccordionItem Text="Angajati" Icon="account_box">
+                        <NavLink class="nav-link" href="listaemp">
+                            <RadzenIcon Icon="list" Style="margin-right:5px;"></RadzenIcon>
+                            
+                            <span class="" aria-hidden="true">Lista angajati</span>
+                        </NavLink>
+                        <NavLink class="nav-link" href="adaugareangajat">
+                            <RadzenIcon Icon="add" Style="margin-right: 5px;"></RadzenIcon>
+                            <span class="" aria-hidden="true">Adauga angajat</span>
+                        </NavLink>
+                    </RadzenAccordionItem>
+                    
+                </Items>
+            </RadzenAccordion>
         </div>
         <div class="nav-item px-3">
             <NavLink class="nav-link" href="counter">

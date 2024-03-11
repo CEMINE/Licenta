@@ -1,6 +1,6 @@
 ﻿<div class="top-row ps-3 navbar navbar-dark">
     <div class="container-fluid">
-        <a class="navbar-brand" href="">Licenta</a>
+        <a class="navbar-brand" href="">EMP MGM</a>
         <button title="Navigation menu" class="navbar-toggler" @onclick="ToggleNavMenu">
             <span class="navbar-toggler-icon"></span>
         </button>
@@ -13,15 +13,15 @@
             <RadzenAccordion>
                 <Items>
                     <RadzenAccordionItem Text="Angajati" Icon="account_box">
-                        <NavLink class="nav-link" href="listaemp">
-                            <RadzenIcon Icon="list" Style="margin-right:5px;"></RadzenIcon>
-                            
-                            <span class="" aria-hidden="true">Lista angajati</span>
-                        </NavLink>
                         <NavLink class="nav-link" href="adaugareangajat">
                             <RadzenIcon Icon="add" Style="margin-right: 5px;"></RadzenIcon>
                             <span class="" aria-hidden="true">Adauga angajat</span>
                         </NavLink>
+                        <NavLink class="nav-link" href="listaemp">
+                            <RadzenIcon Icon="list" Style="margin-right:5px;"></RadzenIcon>
+                            
+                            <span class="" aria-hidden="true">Lista angajati</span>
+                        </NavLink>                        
                     </RadzenAccordionItem>
                     
                 </Items>
@@ -31,6 +31,23 @@
             <NavLink class="nav-link" href="">
                 <span class="oi oi-list-rich" aria-hidden="true"></span> Model
             </NavLink>
+        </div>
+        <div class="nav-item px-3">
+            <RadzenAccordion>
+                <Items>
+                    <RadzenAccordionItem Text="Proiecte" Icon="assignment">
+                        <NavLink class="nav-link" href="adaugaproiect">
+                            <RadzenIcon Icon="add" Style="margin-right: 5px;"></RadzenIcon>
+                            <span aria-hidden="true">Adauga proiect</span>
+                        </NavLink>
+                        <NavLink class="nav-link" href="listaemp">
+                            <RadzenIcon Icon="list" Style="margin-right:5px;"></RadzenIcon>
+
+                            <span class="" aria-hidden="true">Lista proiecte</span>
+                        </NavLink>
+                    </RadzenAccordionItem>
+                </Items>
+            </RadzenAccordion>
         </div>
     </nav>
 </div>

@@ -56,7 +56,7 @@ else
 						<td>@jobTitle</td>
 						<td><RadzenButton Text="Edit" ButtonStyle="ButtonStyle.Success" Shade="Shade.Dark" Icon="build" Click="@(()=> UpdateEmployee(emp))"></RadzenButton></td>
 						<td><RadzenButton Text="Sterge" Icon="delete" ButtonStyle="ButtonStyle.Danger" Shade="Shade.Dark" Click="@(()=> DeleteEmployee(emp))"></RadzenButton></td>
-						<td><RadzenButton Text="Detalii" Icon="info" ButtonStyle="ButtonStyle.Primary" Shade="Shade.Default"></RadzenButton></td>
+						<td><RadzenButton Text="Detalii" Icon="info" ButtonStyle="ButtonStyle.Primary" Shade="Shade.Default" Click="@(() => AboutEmployee(emp))"></RadzenButton></td>
 
 					</tr>
 				}

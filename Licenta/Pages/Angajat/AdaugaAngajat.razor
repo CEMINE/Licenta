@@ -8,6 +8,7 @@
 @inject EmployeeServices _employeeServices
 @inject IDialogService DialogAlert
 @inject NavigationManager navManager
+@inject NotificationService notification
 
 <div class="container container-fluid align-items-center justify-content-center">
     <div class="row">
@@ -65,22 +66,22 @@
                     </div>
                     <div class="form-group mt-2">
                         <label for="salar">Salariu</label>
-                        <input @bind-value="@employee.Salary" type="text" class="form-control" id="salar" placeholder="$$$$$">
+                        <input @bind-value="@salariu" type="text" class="form-control" id="salar" placeholder="$$$$$">
                     </div>
                      
 
                 <div class="mb-3 mt-2 form-group">
                         <label for="birthdate">Data nasterii</label>
-                        <input  class="form-control" name="birthdate" style="width:20vw;" TValue="@DateTime.Now" type="date" @bind-value="@employee.BirthDate" @bind-value:event="oninput" />
+                        <input class="form-control" name="birthdate" style="width:20vw;" TValue="@DateTime.Now" type="date" @bind-value="@birthDate" @bind-value:event="oninput" />
                 </div>
                     <div class="mb-3 mt-2 form-group">
                         <label for="hiredate">Data angajarii</label>
-                        <input class="form-control" name="hiredate" style="width:20vw;" TValue="DateTime" type="date" @bind-value="@employee.HireDate" @bind-value:event="oninput" />
+                        <input class="form-control" name="hiredate" style="width:20vw;" TValue="DateTime" type="date" @bind-value="@hireDate" @bind-value:event="oninput" />
                     </div>
 
                     
                     
-                    <button type="submit" class="btn btn-primary" @onclick="AdaugareAngajat">Submit</button>
+                    <RadzenButton Click=@AdaugareAngajat Text="Adauga angajat" Icon="add_circle_outline" ButtonStyle="ButtonStyle.Success"></RadzenButton>
                 </form>
             </div>
         </div>
@@ -98,8 +99,11 @@
     EmployeeModel employee = new EmployeeModel();
     List<DepartmentModel> departmentList;
     List<JobModel> jobList;
-    //public DateTime birthDate { get; set; } = DateTime.Now;
-    //public DateTime hireDate { get; set; } = DateTime.Now;
+    DateTime birthDate = DateTime.Now;
+    DateTime hireDate = DateTime.Now;
+    double salariu = 0;
+    int depId = 1;
+    int jobId = 1;
 
     protected override async Task OnInitializedAsync()
     {
@@ -109,58 +113,54 @@
         jobList = await _jobServices.GetAllJobs();
     }
 
-    public void Test()
-    {
-        //employee = new EmployeeModel();
-
-        Debug.WriteLine($"Numele angajatului este: {employee.FirstName} {employee.LastName}");
-        Debug.WriteLine($"Angajatul face parte din departamentul {employee.DepartmentID} si are jobul cu id {employee.JobID}");
-        Debug.WriteLine($"salariu: {employee.Salary}");
-        Debug.WriteLine($"dob: {employee.BirthDate} hiredate: {employee.HireDate}");
-
-
-    }
-
     public async void AdaugareAngajat()
     {
         if(employee.FirstName == null)
-            return;
-        if (employee.LastName == null)
-            return;
-        if (employee.HireDate == null)
-            return;
-        if (employee.BirthDate == null)
-            return;
-        if (employee.JobID == null)
-            return;
-        if (employee.DepartmentID == null)
-            return;
-        if (employee.Salary == null)
-            return;
-
-        await _employeeServices.AddEmployee(employee);
-
-    }
-    /*
-    int jobId, departmentId;
-    public void TestSelectJob(int x)
         {
-        jobId = x;
+            notification.Notify(NotificationSeverity.Error, "Eroare!", "Trebuie sa completat numele angajatului!", 3000);
+            return;
+        }
 
-        DialogAlert.DisplayConfirm("titlu",$"jobid: {jobId} ","da", "nu");
+        if (employee.LastName == null)
+        {
+            notification.Notify(NotificationSeverity.Error, "Eroare!", "Trebuie sa completat prenumele angajatului!", 3000);
+            return;
+        }
+
+        if (salariu == 0)
+        {
+            notification.Notify(NotificationSeverity.Error, "Eroare!", "Trebuie sa introduceti salariul!", 3000);
+            Debug.WriteLine($"salariu {salariu}");
+            return;
+        }
+
+        if(hireDate.Date == birthDate.Date)
+        {
+            notification.Notify(NotificationSeverity.Error, "Eroare!", "Data de nastere nu poate sa fie aceeasi ca data de angajare", 3000);
+            return;
+        }     
+
+        
+        Debug.WriteLine($"salariu {salariu}");
+        employee.HireDate = hireDate;
+        employee.BirthDate = birthDate;
+        employee.JobID = jobId;
+        employee.DepartmentID = depId;
+        employee.Salary = salariu;
+        await _employeeServices.AddEmployee(employee);
+        notification.Notify(NotificationSeverity.Success, "Succes!", "Angajatul a fost adaugat cu succes!", 3000);
+
     }
-    */
+
 
     public void DepartmentHandler(ChangeEventArgs e)
     {
-        employee.DepartmentID = Convert.ToInt32(e.Value);
-        DialogAlert.DisplayConfirm("titlu", $"{employee.DepartmentID} ", "da", "nu");
+        depId = Convert.ToInt32(e.Value);
     }
 
     public void JobHandler(ChangeEventArgs e)
     {
-        employee.JobID = Convert.ToInt32(e.Value);
-        DialogAlert.DisplayConfirm("titlu", $"{employee.JobID} ", "da", "nu");
+        jobId = Convert.ToInt32(e.Value);
     }
 
 

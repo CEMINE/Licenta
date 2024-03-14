@@ -88,15 +88,6 @@ else
 		_navManager.NavigateTo($"/updateproject/{proj.ProjectID}");
 	}
 
-	/*
-	public async void DeleteProject(ProjectModel proj)
-		{
-		//await _dialogService.Confirm("Are you sure?", "MyTitle", new ConfirmOptions() { OkButtonText = "Yes", CancelButtonText = "No" });
-		await this._projectServices.DeleteProject(proj);
-		this.StateHasChanged();
-		//_notificationService.Notify(NotificationSeverity.Success, "Succes!", "Proiectul a fost sters cu succes!", 3000);
-	}
-	*/
 
 	public void SearchHandler(ChangeEventArgs e)
 	{
@@ -118,7 +109,7 @@ else
 
 	public async void DeleteProject(ProjectModel proj)
 	{
-		var confirmResult = await _dialogService.Confirm("test", "test");
+		var confirmResult = await _dialogService.Confirm("Atentie", $"Esti sigur ca vrei sa stergi proiectul {proj.ProjectName}?");
 
 		if (confirmResult.HasValue && confirmResult.Value)
 		{

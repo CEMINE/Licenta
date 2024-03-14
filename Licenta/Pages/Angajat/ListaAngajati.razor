@@ -9,6 +9,8 @@
 @inject JobServices _jobServices
 @inject IDialogService DialogService
 @inject NavigationManager navManager
+@inject Radzen.DialogService _dialogService
+@inject NotificationService _notificationService
 
 
 <h1>Lista angajati</h1>
@@ -127,10 +129,20 @@ else
 	}
 
 	public async void DeleteEmployee(EmployeeModel e)
-	{
-		await _employeeServices.DeleteEmployee(e);
-		employeeList = await this._employeeServices.GetAllEmployees();
-		this.StateHasChanged();
+	{	
+		var confirmResult = await _dialogService.Confirm($"Esti sigur ca vrei sa stergi angajatul {e.LastName} {e.FirstName}?", "Atentie!");
+
+		if (confirmResult.HasValue && confirmResult.Value)
+		{
+			await _employeeServices.DeleteEmployee(e);
+			employeeList = await this._employeeServices.GetAllEmployees();
+			this.StateHasChanged();
+			_notificationService.Notify(NotificationSeverity.Success, "Succes!", "Angajatul a fost sters cu succes!", 3000);
+		}
+		else
+		{
+			return;
+		}
 	}
 
 	public async Task<string> GetDepartmentTitle(int depId)

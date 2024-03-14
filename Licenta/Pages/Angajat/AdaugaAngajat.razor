@@ -113,6 +113,11 @@
         jobList = await _jobServices.GetAllJobs();
     }
 
+    async Task PutTaskDelay()
+    {
+        await Task.Delay(2000);
+    }
+
     public async void AdaugareAngajat()
     {
         if(employee.FirstName == null)
@@ -138,9 +143,21 @@
         {
             notification.Notify(NotificationSeverity.Error, "Eroare!", "Data de nastere nu poate sa fie aceeasi ca data de angajare", 3000);
             return;
-        }     
+        }
 
-        
+        if(birthDate.Date > DateTime.Now.Date)
+        {
+            notification.Notify(NotificationSeverity.Error, "Eroare!", "Data de nastere introdusa nu poate sa fie din viitor!", 3000);
+            return;
+        }
+
+        if (hireDate.Date > DateTime.Now.Date)
+        {
+            notification.Notify(NotificationSeverity.Error, "Eroare!", "Data de angajare introdusa nu poate sa fie din viitor!", 3000);
+            return;
+        }
+
+
         Debug.WriteLine($"salariu {salariu}");
         employee.HireDate = hireDate;
         employee.BirthDate = birthDate;
@@ -149,6 +166,8 @@
         employee.Salary = salariu;
         await _employeeServices.AddEmployee(employee);
         notification.Notify(NotificationSeverity.Success, "Succes!", "Angajatul a fost adaugat cu succes!", 3000);
+        await PutTaskDelay();
+        navManager.NavigateTo("/listaemp");
 
     }
 

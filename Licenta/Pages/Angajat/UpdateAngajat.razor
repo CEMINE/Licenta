@@ -238,19 +238,32 @@
             notification.Notify(NotificationSeverity.Error, "Eroare", $"Trebuie sa completati prenumele angajatului", 3000);
             return;
         }
-        
-        if (employee.HireDate == null)
-            return;
-        if (employee.BirthDate == null)
-            return;
-        if (employee.JobID == null)
-            return;
-        if (employee.DepartmentID == null)
-            return;
-        if (employee.Salary == null)
-            return;
 
-        //Debug.WriteLine($"employee dep id {employee.DepartmentID} / emp job id {employee.JobID}");
+        if (employee.Salary == 0)
+        {
+            notification.Notify(NotificationSeverity.Error, "Eroare!", "Trebuie sa introduceti salariul!", 3000);
+            return;
+        }
+
+        if (employee.HireDate.Date == employee.BirthDate.Date)
+        {
+            notification.Notify(NotificationSeverity.Error, "Eroare!", "Data de nastere nu poate sa fie aceeasi ca data de angajare", 3000);
+            return;
+        }
+
+        if (employee.BirthDate.Date > DateTime.Now.Date)
+        {
+            notification.Notify(NotificationSeverity.Error, "Eroare!", "Data de nastere introdusa nu poate sa fie din viitor!", 3000);
+            return;
+        }
+
+        if (employee.HireDate.Date > DateTime.Now.Date)
+        {
+            notification.Notify(NotificationSeverity.Error, "Eroare!", "Data de angajare introdusa nu poate sa fie din viitor!", 3000);
+            return;
+        }
+
+
         await _employeeServices.UpdateEmployee(employee);
         notification.Notify(NotificationSeverity.Success, "Succes!", "Modificarile au fost salvate cu succes!", 5000);
         await PutTaskDelay();
@@ -264,8 +277,7 @@
         employee.DepartmentID = Convert.ToInt32(e.Value);
         await _employeeServices.UpdateEmployee(employee);
         notification.Notify(NotificationSeverity.Success, "Succes!", "Modificarile au fost salvate cu succes!", 5000);
-        await PutTaskDelay();
-        ReloadPage();
+        this.StateHasChanged();
         //DialogAlert.DisplayConfirm("titlu", $"{employee.DepartmentID} ", "da", "nu");
     }
 
@@ -277,7 +289,6 @@
         await _employeeServices.UpdateEmployee(employee);
         notification.Notify(NotificationSeverity.Success, "Succes!", "Modificarile au fost salvate cu succes!", 5000);
         await PutTaskDelay();
-        ReloadPage();
         //DialogAlert.DisplayConfirm("titlu", $"{employee.JobID} ", "da", "nu");
     }
 

@@ -11,14 +11,13 @@
 @inject NavigationManager navManager
 
 
-<h1>Dashboard</h1>
+<h1>Lista angajati</h1>
 
-Iata cateva date despre angajati.
 <br />
 <br />
+
 <RadzenButton Text="Adauga angajat" Click=@NavigateAddEmp  Icon="add_circle_outline" ButtonStyle="ButtonStyle.Primary"></RadzenButton>
 <RadzenTextBox @oninput="@((e) => SearchHandler(e))" Placeholder="Cautare dupa nume sau prenume" Style="width: 15rem; margin-left: 1em; border: 1px solid black;" ></RadzenTextBox>
-
 
 <br />
 <br />
@@ -177,7 +176,6 @@ else
 		search = e.Value.ToString();
 		filteredEmployeeList = employeeList.Where(x => x.FirstName.ToLower().Contains(search.ToLower()) || x.LastName.ToLower().Contains(search.ToLower())).ToList();
 		this.StateHasChanged();
-
 	}
 }
 

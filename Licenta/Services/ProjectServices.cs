@@ -148,7 +148,7 @@ namespace Licenta.Services
         {
             try
             {
-                string fullUrl = this.baseUrl + $"EditProject/ {projectInfo.ProjectID}";
+                string fullUrl = this.baseUrl + $"DeleteProject/ {projectInfo.ProjectID}";
 
                 HttpClient httpClient = new HttpClient();
 

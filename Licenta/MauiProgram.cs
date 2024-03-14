@@ -25,15 +25,14 @@ namespace Licenta
 		builder.Logging.AddDebug();
 #endif
 			builder.Services.AddScoped<NotificationService>();
+			builder.Services.AddScoped<Radzen.DialogService>();
             builder.Services.AddSingleton<WeatherForecastService>();
-
 			builder.Services.AddSingleton<EmployeeServices>();
 			builder.Services.AddSingleton<IDialogService, Services.DialogService>();
 			builder.Services.AddSingleton<DepartmentServices>();
 			builder.Services.AddSingleton<JobServices>();
 			builder.Services.AddSingleton<EmployeeProjectServices>();
 			builder.Services.AddSingleton<ProjectServices>();
-			builder.Services.AddSingleton<AddProjectButton>();
 			return builder.Build();
 		}
 	}

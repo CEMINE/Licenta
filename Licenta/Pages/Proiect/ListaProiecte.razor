@@ -1,6 +1,140 @@
 ﻿@page "/listaproiecte"
-<h3>ListaProiecte</h3>
+@using Licenta.Models
+@using Licenta.Services
+@inject ProjectServices _projectServices
+@inject NavigationManager _navManager
+@inject NotificationService _notificationService
+@inject Radzen.DialogService _dialogService
+
+
+<h1>Lista proiecte</h1>
+<br />
+<br />
+<RadzenButton Text="Adauga proiect" Click=@NavigateAddProject Icon="add_circle_outline" ButtonStyle="ButtonStyle.Primary"></RadzenButton>
+<RadzenTextBox @oninput="@((e) => SearchHandler(e))" Placeholder="Cauta dupa nume proiect" Style="width: 15rem; margin-left: 1em; border: 1px solid black;"></RadzenTextBox>
+<br />
+<br />
+@if (projectList == null)
+{
+	<p><em>Loading...</em></p>
+}
+else
+{
+
+	<div class="table-responsive-sm">
+		<table class="table table-sm table-striped gap-0">
+			<thead>
+				<tr>
+					<th style="width:8vw; padding: 0 0 0 0;">Nume proiect</th>
+					<th style="width:8vw; padding: 0 0 0 0;">Data inceput</th>
+					<th style="width:8vw; padding: 0 0 0 0;">Data sfarsit</th>
+					<th style="width:8vw; padding: 0 0 0 0;">Edit</th>
+					<th style="width:8vw; padding: 0 0 0 0;">Sterge</th>
+					<th style="width:8vw; padding: 0 0 0 0;">Detalii</th>
+				</tr>
+			</thead>
+			<tbody>
+				@if (!string.IsNullOrEmpty(search))
+				{
+					@foreach (var project in filteredProjectList)
+					{
+
+						<tr>
+							<td>@project.ProjectName</td>
+							<td>@project.StartDate.ToString("dd/MM/yyyy")</td>
+							<td>@project.EndDate.ToString("dd/MM/yyyy")</td>
+							<td><RadzenButton Text="Edit" ButtonStyle="ButtonStyle.Success" Shade="Shade.Dark" Icon="build" Click="@(()=> UpdateProject(project))"></RadzenButton></td>
+							<td><RadzenButton Text="Sterge" Icon="delete" ButtonStyle="ButtonStyle.Danger" Shade="Shade.Dark" Click="@(()=> DeleteProject(project))"></RadzenButton></td>
+							<td><RadzenButton Text="Detalii" Icon="info" ButtonStyle="ButtonStyle.Primary" Shade="Shade.Default" ></RadzenButton></td>
+
+						</tr>
+					}
+				}
+				else
+				{
+					@foreach (var project in projectList)
+					{
+
+
+						<tr>
+							<td>@project.ProjectName</td>
+							<td>@project.StartDate.ToString("dd/MM/yyyy")</td>
+							<td>@project.EndDate.ToString("dd/MM/yyyy")</td>
+							<td><RadzenButton Text="Edit" ButtonStyle="ButtonStyle.Success" Shade="Shade.Dark" Icon="build" Click="@(()=> UpdateProject(project))"></RadzenButton></td>
+							<td><RadzenButton Text="Sterge" Icon="delete" ButtonStyle="ButtonStyle.Danger" Shade="Shade.Dark" Click="@(()=> DeleteProject(project))"></RadzenButton></td>
+							<td><RadzenButton Text="Detalii" Icon="info" ButtonStyle="ButtonStyle.Primary" Shade="Shade.Default" Click="@(() => ProjectDetails(project))"></RadzenButton></td>
+
+						</tr>
+					}
+				}
+			</tbody>
+		</table>
+	</div>
+}
 
 @code {
+
+	List<ProjectModel> projectList;
+	List<ProjectModel> filteredProjectList;
+	string search;
+
+	protected override async Task OnInitializedAsync()
+	{
+		projectList = await this._projectServices.GetAllProjects();
+	}
+
+	public void UpdateProject(ProjectModel proj)
+	{
+		_navManager.NavigateTo($"/updateproject/{proj.ProjectID}");
+	}
+
+	/*
+	public async void DeleteProject(ProjectModel proj)
+		{
+		//await _dialogService.Confirm("Are you sure?", "MyTitle", new ConfirmOptions() { OkButtonText = "Yes", CancelButtonText = "No" });
+		await this._projectServices.DeleteProject(proj);
+		this.StateHasChanged();
+		//_notificationService.Notify(NotificationSeverity.Success, "Succes!", "Proiectul a fost sters cu succes!", 3000);
+	}
+	*/
+
+	public void SearchHandler(ChangeEventArgs e)
+	{
+		search = e.Value.ToString();
+		filteredProjectList = projectList.Where(x => x.ProjectName.ToLower().Contains(search.ToLower())).ToList();
+		this.StateHasChanged();
+	}
+
+	public void NavigateAddProject()
+	{
+		_navManager.NavigateTo("/adaugaproiect");
+	}
+
+	public void ProjectDetails(ProjectModel proj)
+	{
+		_navManager.NavigateTo($"/detaliiproiect/{proj.ProjectID}");
+	}
+
+
+	public async void DeleteProject(ProjectModel proj)
+	{
+		var confirmResult = await _dialogService.Confirm("test", "test");
+
+		if (confirmResult.HasValue && confirmResult.Value)
+		{
+			await this._projectServices.DeleteProject(proj);
+			projectList = await this._projectServices.GetAllProjects();
+			this.StateHasChanged();
+			_notificationService.Notify(NotificationSeverity.Success, "Succes!", "Proiectul a fost sters cu succes!", 3000);
+		}
+		else
+		{
+			return;
+		}
+
+	}
+	
+
+
 
 }

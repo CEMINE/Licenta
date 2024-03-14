@@ -17,6 +17,9 @@ Iata cateva date despre angajati.
 <br />
 <br />
 <RadzenButton Text="Adauga angajat" Click=@NavigateAddEmp  Icon="add_circle_outline" ButtonStyle="ButtonStyle.Primary"></RadzenButton>
+<RadzenTextBox @oninput="@((e) => SearchHandler(e))" Placeholder="Cautare dupa nume sau prenume" Style="width: 15rem; margin-left: 1em; border: 1px solid black;" ></RadzenTextBox>
+
+
 <br />
 <br />
 
@@ -43,22 +46,45 @@ else
 				</tr>
 			</thead>
 			<tbody>
-				@foreach (EmployeeModel emp in employeeList)
+				@if(!string.IsNullOrEmpty(search))
 				{
-					string depName = departmentList.Where(x => x.DepartmentID == emp.DepartmentID).Select(d => d.DepartmentName).First();
-					string jobTitle = jobList.Where(x => x.JobID == emp.JobID).Select(j => j.JobTitle).First();
-					
-					<tr>
-						<td>@emp.FirstName</td>
-						<td>@emp.LastName</td>
-						<td>@emp.Age</td>
-						<td>@depName</td>
-						<td>@jobTitle</td>
-						<td><RadzenButton Text="Edit" ButtonStyle="ButtonStyle.Success" Shade="Shade.Dark" Icon="build" Click="@(()=> UpdateEmployee(emp))"></RadzenButton></td>
-						<td><RadzenButton Text="Sterge" Icon="delete" ButtonStyle="ButtonStyle.Danger" Shade="Shade.Dark" Click="@(()=> DeleteEmployee(emp))"></RadzenButton></td>
-						<td><RadzenButton Text="Detalii" Icon="info" ButtonStyle="ButtonStyle.Primary" Shade="Shade.Default" Click="@(() => AboutEmployee(emp))"></RadzenButton></td>
+					@foreach (EmployeeModel emp in filteredEmployeeList)
+					{
+						string depName = departmentList.Where(x => x.DepartmentID == emp.DepartmentID).Select(d => d.DepartmentName).First();
+						string jobTitle = jobList.Where(x => x.JobID == emp.JobID).Select(j => j.JobTitle).First();
 
-					</tr>
+						<tr>
+							<td>@emp.LastName</td>
+							<td>@emp.FirstName</td>
+							<td>@emp.Age</td>
+							<td>@depName</td>
+							<td>@jobTitle</td>
+							<td><RadzenButton Text="Edit" ButtonStyle="ButtonStyle.Success" Shade="Shade.Dark" Icon="build" Click="@(()=> UpdateEmployee(emp))"></RadzenButton></td>
+							<td><RadzenButton Text="Sterge" Icon="delete" ButtonStyle="ButtonStyle.Danger" Shade="Shade.Dark" Click="@(()=> DeleteEmployee(emp))"></RadzenButton></td>
+							<td><RadzenButton Text="Detalii" Icon="info" ButtonStyle="ButtonStyle.Primary" Shade="Shade.Default" Click="@(() => AboutEmployee(emp))"></RadzenButton></td>
+
+						</tr>
+					}
+				}
+				else
+				{
+					@foreach (EmployeeModel emp in employeeList)
+					{
+						string depName = departmentList.Where(x => x.DepartmentID == emp.DepartmentID).Select(d => d.DepartmentName).First();
+						string jobTitle = jobList.Where(x => x.JobID == emp.JobID).Select(j => j.JobTitle).First();
+
+						<tr>
+							<td>@emp.LastName</td>
+							<td>@emp.FirstName</td>
+							<td>@emp.Age</td>
+							<td>@depName</td>
+							<td>@jobTitle</td>
+							<td><RadzenButton Text="Edit" ButtonStyle="ButtonStyle.Success" Shade="Shade.Dark" Icon="build" Click="@(()=> UpdateEmployee(emp))"></RadzenButton></td>
+							<td><RadzenButton Text="Sterge" Icon="delete" ButtonStyle="ButtonStyle.Danger" Shade="Shade.Dark" Click="@(()=> DeleteEmployee(emp))"></RadzenButton></td>
+							<td><RadzenButton Text="Detalii" Icon="info" ButtonStyle="ButtonStyle.Primary" Shade="Shade.Default" Click="@(() => AboutEmployee(emp))"></RadzenButton></td>
+
+						</tr>
+					}
 				}
 			</tbody>
 		</table>
@@ -72,8 +98,10 @@ else
 	//@jobList.Where(x => x.JobID == emp.JobID).Select(j => j.JobTitle).First();
 	bool loaded = false;
 	List<EmployeeModel> employeeList;
+	List<EmployeeModel> filteredEmployeeList;
 	IEnumerable<DepartmentModel> departmentList;
 	IEnumerable<JobModel> jobList;
+	string search;
 	public async void GetAllEmployees()
 	{
 		employeeList = await this._employeeServices.GetAllEmployees();
@@ -87,22 +115,7 @@ else
 		jobList = await this._jobServices.GetAllJobs();
 		Debug.WriteLine("Liste incarcate!!!");
 	}
-	/*
-	public async void TestAddEmployee()
-		{
-		EmployeeModel emp = new EmployeeModel();
-		emp.FirstName = "FTest";
-		emp.LastName = "LTest";
-		emp.DepartmentID = 1;
-		emp.JobID = 1;
-		emp.Salary = 15000;
-		emp.HireDate = DateTime.Now;
-		emp.BirthDate = DateTime.Now;
-		await _employeeServices.AddEmployee(emp);
-		Debug.WriteLine("angajat adaugat");
 
-	}
-	*/
 	public void UpdateEmployee(EmployeeModel e)
 	{
 		navManager.NavigateTo($"updateangajat/{e.EmployeeID}");
@@ -157,6 +170,14 @@ else
 	public void NavigateAddEmp()
 	{
 		navManager.NavigateTo("/adaugareangajat");
+	}
+
+	public void SearchHandler(ChangeEventArgs e)
+	{
+		search = e.Value.ToString();
+		filteredEmployeeList = employeeList.Where(x => x.FirstName.ToLower().Contains(search.ToLower()) || x.LastName.ToLower().Contains(search.ToLower())).ToList();
+		this.StateHasChanged();
+
 	}
 }
 

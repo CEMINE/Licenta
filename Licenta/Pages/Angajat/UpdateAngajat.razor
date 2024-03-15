@@ -213,8 +213,6 @@
         //Debug.WriteLine($"emp id {employee.EmployeeID} / {EmployeeID}");
         employeeProjectsList = await this._employeeProjectServices.GetEmployeeProjectsById(EmployeeID);
         projectList = await this._projectServices.GetAllProjects();
-
-        //currentEmployeeProjects = empProjectList.Where(x => x.EmployeeId == EmployeeID);
         this.StateHasChanged();
     }
 
@@ -265,6 +263,7 @@
 
 
         await _employeeServices.UpdateEmployee(employee);
+        employeeProjectsList = await this._employeeProjectServices.GetEmployeeProjectsById(EmployeeID);
         notification.Notify(NotificationSeverity.Success, "Succes!", "Modificarile au fost salvate cu succes!", 5000);
         await PutTaskDelay();
         navManager.NavigateTo("/listaemp");
@@ -277,8 +276,8 @@
         employee.DepartmentID = Convert.ToInt32(e.Value);
         await _employeeServices.UpdateEmployee(employee);
         notification.Notify(NotificationSeverity.Success, "Succes!", "Modificarile au fost salvate cu succes!", 5000);
+        employeeProjectsList = await this._employeeProjectServices.GetEmployeeProjectsById(EmployeeID);
         this.StateHasChanged();
-        //DialogAlert.DisplayConfirm("titlu", $"{employee.DepartmentID} ", "da", "nu");
     }
 
 
@@ -288,8 +287,8 @@
         employee.JobID = Convert.ToInt32(e.Value);
         await _employeeServices.UpdateEmployee(employee);
         notification.Notify(NotificationSeverity.Success, "Succes!", "Modificarile au fost salvate cu succes!", 5000);
-        await PutTaskDelay();
-        //DialogAlert.DisplayConfirm("titlu", $"{employee.JobID} ", "da", "nu");
+        jobList = await this._jobServices.GetAllJobs();
+        this.StateHasChanged();
     }
 
     public async void AddProjectToEmployee(ChangeEventArgs e)
@@ -306,8 +305,9 @@
         Debug.WriteLine($"emp id{emp.EmployeeId} proj id {emp.ProjectId}");
         await this._employeeProjectServices.AddEmployeeProject(emp);
         notification.Notify(NotificationSeverity.Success, "Succes!", "Modificarile au fost salvate cu succes!", 5000);
-        await PutTaskDelay();
-        ReloadPage();
+        employeeProjectsList = await this._employeeProjectServices.GetEmployeeProjectsById(EmployeeID);
+        ToggleVisibility();
+        this.StateHasChanged();
     }
 
     public void ReloadPage()
@@ -329,23 +329,21 @@
                 return;
             }
         }
-        Debug.WriteLine($"project handler / valori noi: emp id {epm.EmployeeId} - proj id {epm.ProjectId} / valori vechi {selectedValues[oldProjectId]} / valoare noua {e.Value}");
         await DialogAlert.DisplayConfirm("test", $"valoare veche{selectedValues[oldProjectId]} / valoare noua{e.Value}", "da", "nu");
         await this._employeeProjectServices.UpdateEmployeeProject(EmployeeID, selectedValues[oldProjectId], epm);
         await OnInitializedAsync();
-        this.StateHasChanged();
         notification.Notify(NotificationSeverity.Success, "Succes!", "Modificarile au fost salvate cu succes!", 5000);
-        await PutTaskDelay();
-        ReloadPage();
-        //await this._employeeProjectServices.UpdateEmployeeProject(EmployeeID, )
+        projectList = await this._projectServices.GetAllProjects();
+        this.StateHasChanged();
+
     }
 
     public async void DeleteProject(int index)
     {
         await this._employeeProjectServices.DeleteEmployeeProject(EmployeeID, employeeProjectsList[index].ProjectId);
         notification.Notify(NotificationSeverity.Success, "Succes!", "Modificarile au fost salvate cu succes!", 5000);
-        await PutTaskDelay();
-        ReloadPage();
+        employeeProjectsList = await this._employeeProjectServices.GetEmployeeProjectsById(EmployeeID);
+        this.StateHasChanged();
     }
 
     public void ToggleVisibility()

@@ -95,19 +95,16 @@ else
 
 
 @code {
-	//@departmentList.Where(x => x.DepartmentID == emp.DepartmentID).Select(d => d.DepartmentName).First();
-	//@jobList.Where(x => x.JobID == emp.JobID).Select(j => j.JobTitle).First();
-	bool loaded = false;
-	List<EmployeeModel> employeeList;
-	List<EmployeeModel> filteredEmployeeList;
-	IEnumerable<DepartmentModel> departmentList;
-	IEnumerable<JobModel> jobList;
-	string search;
-	public async void GetAllEmployees()
-	{
-		employeeList = await this._employeeServices.GetAllEmployees();
+		List<EmployeeModel> employeeList;
+		List<EmployeeModel> filteredEmployeeList;
+		IEnumerable<DepartmentModel> departmentList;
+		IEnumerable<JobModel> jobList;
+		string search;
+		public async void GetAllEmployees()
+		{
+			employeeList = await this._employeeServices.GetAllEmployees();
 
-	}
+		}
 
 	protected override async Task OnInitializedAsync()
 	{
@@ -186,7 +183,10 @@ else
 	public void SearchHandler(ChangeEventArgs e)
 	{
 		search = e.Value.ToString();
-		filteredEmployeeList = employeeList.Where(x => x.FirstName.ToLower().Contains(search.ToLower()) || x.LastName.ToLower().Contains(search.ToLower())).ToList();
+		//filteredEmployeeList = employeeList.Where(x => x.FirstName.ToLower().Contains(search.ToLower()) || x.LastName.ToLower().Contains(search.ToLower())).ToList();
+		filteredEmployeeList = employeeList
+		.Where(x => (x.FirstName.ToLower() + " " + x.LastName.ToLower()).Contains(search.ToLower()) 
+		|| (x.LastName.ToLower() + " " + x.FirstName.ToLower()).Contains(search.ToLower())).ToList();
 		this.StateHasChanged();
 	}
 }

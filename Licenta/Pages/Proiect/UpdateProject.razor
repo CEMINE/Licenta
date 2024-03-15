@@ -1,17 +1,45 @@
 ﻿@page "/updateproject/{ProjectID:int}"
+@using Licenta.Models
+@using Licenta.Services
+@inject ProjectServices _projectServices
+@inject NotificationService _notificationService
+@inject NavigationManager _navManager
 <div class="row">
-    <div class="col">
+    <div class="col" style="border:1px solid black;">
         <h1>Editeaza proiect</h1>
     </div>
 </div>
 <div class="row">
-    <div class="col-2">
+    <div class="col-2" style="border:1px solid black;">
 
     </div> 
-    <div class="col-8">
-
+    <div class="col-8" style="border:1px solid black;">
+        @if(proj == null)
+        {
+            <p><em>Loading...</em></p>
+        }
+        else
+        {
+            <div class="wrapper">
+                <form class="mt-3 justify-content-center" style="max-width: 25vw; margin-left: 25%;">
+                    <div class="form-group mt-2">
+                        <label for="nume">Nume proiect</label>
+                        <input @bind-value="@proj.ProjectName" type="text" class="form-control" id="nume" aria-describedby="emailHelp" placeholder="Nume">
+                    </div>
+                    <div class="form-group mt-2">
+                        <label for="startDate">Data inceput</label>
+                        <input class="form-control" name="startDate" TValue="@DateTime.Now" type="date" @bind-value="@proj.StartDate" @bind-value:event="oninput" />
+                    </div>
+                    <div class="form-group mt-2">
+                        <label for="endDate">Data finalizare</label>
+                        <input class="form-control" name="endDate" TValue="@DateTime.Now" type="date" @bind-value="@proj.EndDate" @bind-value:event="oninput" />
+                    </div>
+                </form>
+                <RadzenButton Click=@ProjectUpdate Text="Salveaza modificari" ButtonStyle="ButtonStyle.Success" Shade="Shade.Dark" Style="font-family:Arial; margin-left:25%;" Icon="save"></RadzenButton>
+            </div>
+        }
     </div>
-    <div class="col-2">
+    <div class="col-2" style="border:1px solid black;">
 
     </div>
 </div>
@@ -20,4 +48,40 @@
 @code {
     [Parameter]
     public int ProjectID { get; set; }
+    ProjectModel proj;
+
+    protected override async Task OnInitializedAsync()
+    {
+        proj = await this._projectServices.GetProjectById(ProjectID);
+        this.StateHasChanged();
+    }
+
+    public async void ProjectUpdate()
+    {
+        if(proj.ProjectName == null || proj.ProjectName == "")
+        {
+            _notificationService.Notify(NotificationSeverity.Error, "Eroare!", "Trebuie sa completati numele proiectului!", 3000);
+            return;
+        }
+        if(proj.StartDate.Date > proj.EndDate.Date)
+        {
+            _notificationService.Notify(NotificationSeverity.Error, "Eroare!", "Data de inceput a proiectului nu poate sa fie inaintea datei de finalizare!", 3000);
+            return;
+        }
+        if(proj.EndDate.Date < proj.StartDate.Date)
+        {
+            _notificationService.Notify(NotificationSeverity.Error, "Eroare!", "Data de finalizare a proiectului nu poate sa fie inaintea datei de incepere!", 3000);
+            return;
+        }
+        if(proj.StartDate.Date == proj.EndDate.Date)
+        {
+            _notificationService.Notify(NotificationSeverity.Error, "Eroare!", "Data de inceput a proiectului nu poate sa fie aceeasi cu cea de sfarsit!", 3000);
+            return;
+        }
+        await this._projectServices.UpdateProject(proj);
+        proj = await this._projectServices.GetProjectById(ProjectID);
+        this.StateHasChanged();
+        _notificationService.Notify(NotificationSeverity.Success, "Succes!", "Modificarile au fost salvate cu succes!", 3000);
+        _navManager.NavigateTo("/listaproiecte");
+    }
 }

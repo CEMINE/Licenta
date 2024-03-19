@@ -1,0 +1,125 @@
+﻿@page "/listadepartamente"
+@using Licenta.Models
+@using Licenta.Services
+@inject DepartmentServices _departmentServices
+@inject NavigationManager _navManager
+@inject NotificationService _notificationService
+@inject Radzen.DialogService _dialogService
+
+
+<h1>Lista departamente</h1>
+<br />
+<br />
+<RadzenButton Text="Adauga departament" Click=@NavigateAddDepartment Icon="add_circle_outline" ButtonStyle="ButtonStyle.Primary"></RadzenButton>
+<RadzenTextBox @oninput="@((e) => SearchHandler(e))" Placeholder="Cauta dupa nume departament" Style="width: 15rem; margin-left: 1em; border: 1px solid black;"></RadzenTextBox>
+<br />
+<br />
+@if (departmentList == null)
+{
+	<div class="spinner">
+		
+	</div>
+}
+else
+{
+
+	<div class="table-responsive-sm">
+		<table class="table table-sm table-striped gap-0">
+			<thead>
+				<tr>
+					<th style="width:8vw; padding: 0 0 0 0;">Nume departament</th>
+					<th style="width:8vw; padding: 0 0 0 0;">Edit</th>
+					<th style="width:8vw; padding: 0 0 0 0;">Sterge</th>
+					<th style="width:8vw; padding: 0 0 0 0;">Detalii</th>
+				</tr>
+			</thead>
+			<tbody>
+				@if (!string.IsNullOrEmpty(search))
+				{
+					@foreach (var dep in filteredDepartmentList)
+					{
+
+						<tr>
+							<td>@dep.DepartmentName</td>
+							<td><RadzenButton Text="Edit" ButtonStyle="ButtonStyle.Success" Shade="Shade.Dark" Icon="build" Click="@(()=> UpdateDepartment(dep))"></RadzenButton></td>
+							<td><RadzenButton Text="Sterge" Icon="delete" ButtonStyle="ButtonStyle.Danger" Shade="Shade.Dark" Click="@(()=> DeleteDepartment(dep))"></RadzenButton></td>
+							<td><RadzenButton Text="Detalii" Icon="info" ButtonStyle="ButtonStyle.Primary" Shade="Shade.Default" Click="@(() => DepartmentDetails(dep))"></RadzenButton></td>
+						</tr>
+					}
+				}
+				else
+				{
+					@foreach (var dep in departmentList)
+					{
+
+
+						<tr>
+							<td>@dep.DepartmentName</td>
+							<td><RadzenButton Text="Edit" ButtonStyle="ButtonStyle.Success" Shade="Shade.Dark" Icon="build" Click="@(()=> UpdateDepartment(dep))"></RadzenButton></td>
+							<td><RadzenButton Text="Sterge" Icon="delete" ButtonStyle="ButtonStyle.Danger" Shade="Shade.Dark" Click="@(()=> DeleteDepartment(dep))"></RadzenButton></td>
+							<td><RadzenButton Text="Detalii" Icon="info" ButtonStyle="ButtonStyle.Primary" Shade="Shade.Default" Click="@(() => DepartmentDetails(dep))"></RadzenButton></td>
+						</tr>
+					}
+				}
+			</tbody>
+		</table>
+	</div>
+}
+
+@code {
+
+	List<DepartmentModel> departmentList;
+	List<DepartmentModel> filteredDepartmentList;
+	string search;
+
+	protected override async Task OnInitializedAsync()
+	{
+		departmentList = await this._departmentServices.GetAllDepartments();
+	}
+
+	public void UpdateDepartment(DepartmentModel dep)
+	{
+		_navManager.NavigateTo($"/updatedepartament/{dep.DepartmentID}");
+	}
+
+
+	public void SearchHandler(ChangeEventArgs e)
+	{
+		search = e.Value.ToString();
+		filteredDepartmentList = departmentList.Where(x => x.DepartmentName.ToLower().Contains(search.ToLower())).ToList();
+		this.StateHasChanged();
+	}
+
+	public void NavigateAddDepartment()
+	{
+		_navManager.NavigateTo("/adaugadepartament");
+	}
+
+	public void DepartmentDetails(DepartmentModel dep)
+	{
+		_navManager.NavigateTo($"/detaliidepartament/{dep.DepartmentID}");
+	}
+
+
+	public async void DeleteDepartment(DepartmentModel dep)
+	{
+		var confirmResult = await _dialogService.Confirm("Atentie", $"Esti sigur ca vrei sa stergi departamentul {dep.DepartmentName}?");
+
+		if (confirmResult.HasValue && confirmResult.Value)
+		{
+			await this._departmentServices.DeleteDepartment(dep);
+			departmentList = await this._departmentServices.GetAllDepartments();
+			this.StateHasChanged();
+			_notificationService.Notify(NotificationSeverity.Success, "Succes!", "Departamentul a fost sters cu succes!", 3000);
+		}
+		else
+		{
+			return;
+		}
+
+	}
+	
+
+
+
+}

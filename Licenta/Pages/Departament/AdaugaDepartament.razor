@@ -1,0 +1,57 @@
+﻿@page "/adaugadepartament"
+@using Licenta.Models
+@using Licenta.Services
+@inject DepartmentServices _departmentServices
+@inject NotificationService notification
+@inject NavigationManager _navManager
+
+
+<div class="row">
+    <div class="col-12" style="border: 1px solid black;">
+        <h1 style="text-align:center;">Adauga departament</h1>
+    </div>
+</div>
+<div class="row">
+    <div class="col-2" style="border: 1px solid black;">
+        <p>test</p>
+    </div>
+    <div class="col-8" style="border: 1px solid black;">
+        <div class="wrapper">
+            <form class="mt-3" style="margin-left:31%;">
+                <div class="form-group">
+                    <label for="nume">Nume departament</label>
+                    <input style="width:20vw" type="text" class="form-control" id="nume" aria-describedby="emailHelp" placeholder="Nume departament" @bind-value="@departmentName">
+                </div>
+                <RadzenButton Click=@AddDepartment Text="Adauga departament" Icon="add_circle_outline" ButtonStyle="ButtonStyle.Success"></RadzenButton>
+            </form>
+        </div>
+    </div>
+    <div class="col-2" style="border: 1px solid black;">
+        <p>test</p>
+    </div>
+</div>
+
+@code {
+    IEnumerable<DepartmentModel> departmentList;
+    string departmentName;
+
+    protected override async Task OnInitializedAsync()
+    {
+        departmentList = await this._departmentServices.GetAllDepartments();
+    }
+
+    public async void AddDepartment(){
+        if(departmentName == null || departmentName == "")
+        {
+            notification.Notify(NotificationSeverity.Error, "Eroare", $"Trebuie sa completati numele departamentului", 3000);
+            return;
+        }
+
+        DepartmentModel dep = new DepartmentModel();
+        dep.DepartmentName = departmentName;
+        await this._departmentServices.AddDepartment(dep);
+        notification.Notify(NotificationSeverity.Success, "Succes!", "Departamentul a fost adaugat cu succes!", 3000);
+        _navManager.NavigateTo("/listadepartamente");
+
+    }
+}                            

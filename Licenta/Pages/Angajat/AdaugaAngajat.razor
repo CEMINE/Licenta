@@ -37,7 +37,9 @@
                         <select class="form-control" id="exampleFormControlSelect1" @onchange="DepartmentHandler">
                             @if(departmentList == null)
                             {
-                              <p>Loading</p>
+                              <div class="spinner">
+
+                              </div>
                             }
                             else
                             {
@@ -53,7 +55,8 @@
                         <select class="form-control" id="exampleFormControlSelect1" @onchange="JobHandler">
                             @if (jobList == null)
                             {
-
+                                <div class="spinner">
+                                </div>
                             }
                             else
                             {

@@ -1,0 +1,70 @@
+﻿@page "/adaugajob"
+@using Licenta.Models
+@using Licenta.Services
+@inject JobServices _jobServices
+@inject NotificationService notification
+@inject NavigationManager _navManager
+
+
+<div class="row">
+    <div class="col-12" style="border: 1px solid black;">
+        <h1 style="text-align:center;">Adauga job</h1>
+    </div>
+</div>
+<div class="row">
+    <div class="col-2" style="border: 1px solid black;">
+        <p>test</p>
+    </div>
+    <div class="col-8" style="border: 1px solid black;">
+        <div class="wrapper">
+            <form class="mt-3" style="margin-left:31%;">
+                <div class="form-group">
+                    <label for="nume">Nume job</label>
+                    <input style="width:20vw" type="text" class="form-control" id="nume" aria-describedby="emailHelp" placeholder="Nume departament" @bind-value="@jobName">
+                </div>
+                <RadzenButton Click=@AddJob Text="Adauga departament" Icon="add_circle_outline" ButtonStyle="ButtonStyle.Success" class="mt-3"></RadzenButton>
+            </form>
+        </div>
+    </div>
+    <div class="col-2" style="border: 1px solid black;">
+        <p>test</p>
+    </div>
+</div>
+
+@code {
+    IEnumerable<JobModel> jobList;
+    string jobName;
+
+    protected override async Task OnInitializedAsync()
+    {
+        jobList = await this._jobServices.GetAllJobs();
+    }
+
+    public async void AddJob()
+    {
+        if (jobName == null || jobName == "")
+        {
+            notification.Notify(NotificationSeverity.Error, "Eroare", $"Trebuie sa completati numele job-ului", 3000);
+            return;
+        }
+
+        if (jobList != null)
+        {
+            foreach (var item in jobList)
+            {
+                if (item.JobTitle.Contains(jobName))
+                {
+                    notification.Notify(NotificationSeverity.Error, "Eroare", $"Acest job exista deja!", 3000);
+                    return;
+                }
+            }
+        }
+
+        JobModel job = new JobModel();
+        job.JobTitle = jobName;
+        await this._jobServices.AddJob(job);
+        notification.Notify(NotificationSeverity.Success, "Succes!", "Job-ul a fost adaugat cu succes!", 3000);
+        _navManager.NavigateTo("/listajobs");
+
+    }
+}                            

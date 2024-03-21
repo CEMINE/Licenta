@@ -1,0 +1,124 @@
+﻿@page "/listajobs"
+@using Licenta.Models
+@using Licenta.Services
+@inject JobServices _jobServices
+@inject NavigationManager _navManager
+@inject NotificationService _notificationService
+@inject Radzen.DialogService _dialogService
+
+
+<h1>Lista job-uri</h1>
+<br />
+<br />
+<RadzenButton Text="Adauga job" Click=@NavigateAddJob Icon="add_circle_outline" ButtonStyle="ButtonStyle.Primary"></RadzenButton>
+<RadzenTextBox @oninput="@((e) => SearchHandler(e))" Placeholder="Cauta dupa nume job" Style="width: 15rem; margin-left: 1em; border: 1px solid black;"></RadzenTextBox>
+<br />
+<br />
+@if (jobList == null)
+{
+	<div class="spinner">
+	</div>
+}
+else
+{
+
+	<div class="table-responsive-sm">
+		<table class="table table-sm table-striped gap-0">
+			<thead>
+				<tr>
+					<th style="width:8vw; padding: 0 0 0 0;">Nume departament</th>
+					<th style="width:8vw; padding: 0 0 0 0;">Edit</th>
+					<th style="width:8vw; padding: 0 0 0 0;">Sterge</th>
+					<th style="width:8vw; padding: 0 0 0 0;">Detalii</th>
+				</tr>
+			</thead>
+			<tbody>
+				@if (!string.IsNullOrEmpty(search))
+				{
+					@foreach (var job in filteredJobList)
+					{
+
+						<tr>
+							<td>@job.JobTitle</td>
+							<td><RadzenButton Text="Edit" ButtonStyle="ButtonStyle.Success" Shade="Shade.Dark" Icon="build" Click="@(()=> UpdateJob(job))"></RadzenButton></td>
+							<td><RadzenButton Text="Sterge" Icon="delete" ButtonStyle="ButtonStyle.Danger" Shade="Shade.Dark" Click="@(()=> DeleteJob(job))"></RadzenButton></td>
+							<td><RadzenButton Text="Detalii" Icon="info" ButtonStyle="ButtonStyle.Primary" Shade="Shade.Default" Click="@(() => JobDetails(job))"></RadzenButton></td>
+						</tr>
+					}
+				}
+				else
+				{
+					@foreach (var job in jobList)
+					{
+
+
+						<tr>
+							<td>@job.JobTitle</td>
+							<td><RadzenButton Text="Edit" ButtonStyle="ButtonStyle.Success" Shade="Shade.Dark" Icon="build" Click="@(()=> UpdateJob(job))"></RadzenButton></td>
+							<td><RadzenButton Text="Sterge" Icon="delete" ButtonStyle="ButtonStyle.Danger" Shade="Shade.Dark" Click="@(()=> DeleteJob(job))"></RadzenButton></td>
+							<td><RadzenButton Text="Detalii" Icon="info" ButtonStyle="ButtonStyle.Primary" Shade="Shade.Default" Click="@(() => JobDetails(job))"></RadzenButton></td>
+						</tr>
+					}
+				}
+			</tbody>
+		</table>
+	</div>
+}
+
+@code {
+
+	List<JobModel> jobList;
+	List<JobModel> filteredJobList;
+	string search;
+
+	protected override async Task OnInitializedAsync()
+	{
+		jobList = await this._jobServices.GetAllJobs();
+	}
+
+	public void UpdateJob(JobModel job)
+	{
+		_navManager.NavigateTo($"/updatedepartament/{job.JobID}");
+	}
+
+
+	public void SearchHandler(ChangeEventArgs e)
+	{
+		search = e.Value.ToString();
+		filteredJobList = jobList.Where(x => x.JobTitle.ToLower().Contains(search.ToLower())).ToList();
+		this.StateHasChanged();
+	}
+
+	public void NavigateAddJob()
+	{
+		_navManager.NavigateTo("/adaugajob");
+	}
+
+	public void JobDetails(JobModel job)
+	{
+		_navManager.NavigateTo($"/detaliijob/{job.JobID}");
+	}
+
+
+	public async void DeleteJob(JobModel job)
+	{
+		var confirmResult = await _dialogService.Confirm("Atentie", $"Esti sigur ca vrei sa stergi job-ul {job.JobTitle}?");
+
+		if (confirmResult.HasValue && confirmResult.Value)
+		{
+			await this._jobServices.DeleteJob(job);
+			jobList= await this._jobServices.GetAllJobs();
+			this.StateHasChanged();
+			_notificationService.Notify(NotificationSeverity.Success, "Succes!", "Departamentul a fost sters cu succes!", 3000);
+		}
+		else
+		{
+			return;
+		}
+
+	}
+
+
+
+
+}

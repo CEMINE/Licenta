@@ -1,0 +1,78 @@
+﻿@page "/updatejob/{JobID:int}"
+@using Licenta.Models
+@using Licenta.Services
+@using System.Diagnostics
+@inject JobServices _jobServices
+@inject NotificationService _notificationService
+@inject NavigationManager _navManager
+<div class="row">
+    <div class="col" style="border:1px solid black;">
+        <h1>Editeaza proiect</h1>
+    </div>
+</div>
+<div class="row">
+    <div class="col-2" style="border:1px solid black;">
+    </div>
+    <div class="col-8" style="border:1px solid black;">
+        @if (job == null)
+        {
+            <div class="spinner">
+            </div>
+        }
+        else
+        {
+            <div class="wrapper">
+                <form class="mt-3 justify-content-center" style="max-width: 25vw; margin-left: 25%;">
+                    <div class="form-group mt-2">
+                        <label for="nume">Nume departament</label>
+                        <input @bind-value="@job.JobTitle" type="text" class="form-control" id="nume" aria-describedby="emailHelp" placeholder="Nume">
+                    </div>
+                </form>
+                <RadzenButton Click=@JobUpdate Text="Salveaza modificari" ButtonStyle="ButtonStyle.Success" Shade="Shade.Dark" Style="font-family:Arial; margin-left:25%;" Icon="save" class="mt-3"></RadzenButton>
+            </div>
+        }
+    </div>
+    <div class="col-2" style="border:1px solid black;">
+    </div>
+</div>
+
+
+@code {
+    [Parameter]
+    public int JobID { get; set; }
+    JobModel job;
+    IEnumerable<JobModel> jobList;
+
+    protected override async Task OnInitializedAsync()
+    {
+        job = await this._jobServices.GetJobById(JobID);
+        jobList = await this._jobServices.GetAllJobs();
+        this.StateHasChanged();
+    }
+
+    public async void JobUpdate()
+    {
+        if (job.JobTitle == null || job.JobTitle == "")
+        {
+            _notificationService.Notify(NotificationSeverity.Error, "Eroare!", "Trebuie sa completati numele proiectului!", 3000);
+            return;
+        }
+        if (jobList != null)
+        {
+            foreach (var item in jobList)
+            {
+                Debug.WriteLine("A intrat in foreach loop");
+                if (item.JobTitle == job.JobTitle)
+                {
+                    _notificationService.Notify(NotificationSeverity.Error, "Eroare!", "Acest job exista deja!", 3000);
+                    return;
+                }
+            }
+        }
+        await this._jobServices.UpdateJob(job);
+        job = await this._jobServices.GetJobById(JobID);
+        this.StateHasChanged();
+        _notificationService.Notify(NotificationSeverity.Success, "Succes!", "Modificarile au fost salvate cu succes!", 3000);
+        _navManager.NavigateTo("/listajobs");
+    }
+}

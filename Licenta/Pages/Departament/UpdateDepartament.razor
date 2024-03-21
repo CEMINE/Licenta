@@ -1,0 +1,80 @@
+﻿@page "/updatedepartament/{DepartmentID:int}"
+@using Licenta.Models
+@using Licenta.Services
+@using System.Diagnostics
+@inject DepartmentServices _departmentServices
+@inject NotificationService _notificationService
+@inject NavigationManager _navManager
+<div class="row">
+    <div class="col" style="border:1px solid black;">
+        <h1>Editeaza proiect</h1>
+    </div>
+</div>
+<div class="row">
+    <div class="col-2" style="border:1px solid black;">
+    </div>
+    <div class="col-8" style="border:1px solid black;">
+        @if (dep == null)
+        {
+            <div class="spinner">
+            </div>
+        }
+        else
+        {
+            <div class="wrapper">
+                <form class="mt-3 justify-content-center" style="max-width: 25vw; margin-left: 25%;">
+                    <div class="form-group mt-2">
+                        <label for="nume">Nume departament</label>
+                        <input @bind-value="@dep.DepartmentName" type="text" class="form-control" id="nume" aria-describedby="emailHelp" placeholder="Nume">
+                    </div>
+                </form>
+                <RadzenButton Click=@DepartmentUpdate Text="Salveaza modificari" ButtonStyle="ButtonStyle.Success" Shade="Shade.Dark" Style="font-family:Arial; margin-left:25%;" Icon="save" class="mt-3"></RadzenButton>
+            </div>
+        }
+    </div>
+    <div class="col-2" style="border:1px solid black;">
+    </div>
+</div>
+
+
+@code {
+    [Parameter]
+    public int DepartmentID { get; set; }
+    DepartmentModel dep;
+    IEnumerable<DepartmentModel> departmentList;
+
+    protected override async Task OnInitializedAsync()
+    {
+        dep = await this._departmentServices.GetDepartmentById(DepartmentID);
+        departmentList = await this._departmentServices.GetAllDepartments();
+        this.StateHasChanged();
+    }
+
+    public async void DepartmentUpdate()
+    {
+        if (dep.DepartmentName == null || dep.DepartmentName == "")
+        {
+            _notificationService.Notify(NotificationSeverity.Error, "Eroare!", "Trebuie sa completati numele proiectului!", 3000);
+            return;
+        }
+        if(departmentList != null)
+        {
+            Debug.WriteLine("Lista cu departamente nu este nulla");
+            foreach(var item in departmentList)
+            {
+                Debug.WriteLine("A intrat in foreach loop");
+                if(item.DepartmentName == dep.DepartmentName)
+                {
+                    _notificationService.Notify(NotificationSeverity.Error, "Eroare!", "Acest proiect exista deja!", 3000);
+                    Debug.WriteLine($"Item 1: {item.DepartmentName} / Item 2: {dep.DepartmentName}");
+                    return;
+                }
+            }
+        }
+        await this._departmentServices.UpdateDepartment(dep);
+        dep = await this._departmentServices.GetDepartmentById(DepartmentID);
+        this.StateHasChanged();
+        _notificationService.Notify(NotificationSeverity.Success, "Succes!", "Modificarile au fost salvate cu succes!", 3000);
+        _navManager.NavigateTo("/listadepartamente");
+    }
+}

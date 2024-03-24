@@ -1,0 +1,125 @@
+﻿@page "/dashboard2"
+@using Licenta.Models
+@using Licenta.Services
+@using System.Diagnostics
+@inject DepartmentServices _departmentServices
+@inject EmployeeServices _employeeServices
+@inject EmployeeProjectServices _employeeProjectServices
+
+@if (departmentList == null || empList == null)
+{
+    <div class="spinner"></div>
+}
+else
+{
+    <div class="buttons">
+        <RadzenStack Orientation="Radzen.Orientation.Horizontal" AlignItems="AlignItems.Center" Gap="1rem" Wrap="FlexWrap.Wrap">
+            <RadzenButton Text="Total angajati/departament" ButtonStyle="ButtonStyle.Primary" class="rz-border-radius-6" Click=@Test />
+            <RadzenButton Text="Total angajati/departament" ButtonStyle="ButtonStyle.Primary" class="rz-border-radius-6"/>
+            <RadzenButton Text="Total angajati/departament" ButtonStyle="ButtonStyle.Primary" class="rz-border-radius-6"/>
+            <RadzenButton Text="Total angajati/departament" ButtonStyle="ButtonStyle.Primary" class="rz-border-radius-6" />
+            <RadzenButton Text="Total angajati/departament" ButtonStyle="ButtonStyle.Primary" class="rz-border-radius-6" />
+
+        </RadzenStack>
+
+    </div>
+    <div>
+        <ApexChart TItem="DataTest"
+                   Title="Total angajati pe fiecare departament">
+
+            <ApexPointSeries TItem="DataTest"
+                             Items="test"
+                             Name="Angajati"
+                             SeriesType="SeriesType.Bar"
+                             XValue="e => e.Departament"
+                             YValue="e => e.NrAngajati" />
+
+        </ApexChart>
+    </div>
+    <div>
+        <ApexChart TItem="AngajatiProiecteMultiple"
+                   Title="Total angajati pe fiecare departament">
+
+            <ApexPointSeries TItem="AngajatiProiecteMultiple"
+                             Items="angajatiProiecteMultipleList"
+                             Name="Angajati"
+                             SeriesType="SeriesType.Bar"
+                             XValue="e => e.NrProiecte"
+                             YValue="e => e.NrAngajati" />
+
+        </ApexChart>
+    </div>
+}
+
+@code {
+    private List<MyData> Data { get; set; } = new();
+    private List<DataTest> test { get; set; } = new();
+    private List<AngajatiProiecteMultiple> angajatiProiecteMultipleList { get; set; } = new();
+    List<DepartmentModel> departmentList;
+    List<EmployeeModel> empList;
+    List<EmployeeProjectModel> empProjectList;
+    bool isHidden = true;
+
+    public void Test()
+    {
+        isHidden = !isHidden;
+    }
+
+    protected async override void OnInitialized()
+    {
+
+        departmentList = await this._departmentServices.GetAllDepartments();
+        empList = await this._employeeServices.GetAllEmployees();
+        empProjectList = await this._employeeProjectServices.GetAllEmployeesProjects();
+
+        if (departmentList != null)
+        {
+            foreach (var item in departmentList)
+            {
+                test.Add(new DataTest { NrAngajati = empList.Where(x => x.DepartmentID == item.DepartmentID).Distinct().Count(), Departament = item.DepartmentName });
+
+            }
+
+        }
+        if(empProjectList != null)
+        {
+            foreach(var item in empProjectList)
+            {
+                var test = empProjectList
+                        .GroupBy(x => x.EmployeeId)
+                        .Where(z => z.Count() > 1)
+                        .Count();
+                Debug.WriteLine($"{test.ToString()}");
+                angajatiProiecteMultipleList.Add(new AngajatiProiecteMultiple
+                    {
+                        NrAngajati = empProjectList
+                        .GroupBy(x => x.EmployeeId)
+                        .Where(z => z.Count() > 1)
+                        .Count(),
+
+                        NrProiecte = 1   
+                    });
+            }
+        }
+        this.StateHasChanged();
+    }
+
+    public class MyData
+    {
+        public string Category { get; set; }
+        public int NetProfit { get; set; }
+        public int Revenue { get; set; }
+    }
+
+    public class DataTest
+    {
+        public int NrAngajati { get; set; }
+        public string Departament { get; set; }
+    }
+
+    public class AngajatiProiecteMultiple
+    {
+        public int NrAngajati { get; set; }
+        public int NrProiecte { get; set; }
+    }
+}

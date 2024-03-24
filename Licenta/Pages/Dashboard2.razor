@@ -13,9 +13,9 @@
 else
 {
     <div class="buttons">
-        <RadzenStack Orientation="Radzen.Orientation.Horizontal" AlignItems="AlignItems.Center" Gap="1rem" Wrap="FlexWrap.Wrap">
+        <RadzenStack Orientation="Radzen.Orientation.Horizontal" AlignItems="AlignItems.Center" Gap="1rem" Wrap="FlexWrap.Wrap" class="mb-3">
             <RadzenButton Text="Total angajati/departament" ButtonStyle="ButtonStyle.Primary" class="rz-border-radius-6" Click=@Test />
-            <RadzenButton Text="Total angajati/departament" ButtonStyle="ButtonStyle.Primary" class="rz-border-radius-6"/>
+            <RadzenButton Text="Total angajati/departament" ButtonStyle="ButtonStyle.Primary" class="rz-border-radius-6" />
             <RadzenButton Text="Total angajati/departament" ButtonStyle="ButtonStyle.Primary" class="rz-border-radius-6"/>
             <RadzenButton Text="Total angajati/departament" ButtonStyle="ButtonStyle.Primary" class="rz-border-radius-6" />
             <RadzenButton Text="Total angajati/departament" ButtonStyle="ButtonStyle.Primary" class="rz-border-radius-6" />
@@ -25,7 +25,7 @@ else
     </div>
     <div>
         <ApexChart TItem="DataTest"
-                   Title="Total angajati pe fiecare departament">
+                   Title="Total angajati pe fiecare departament" >
 
             <ApexPointSeries TItem="DataTest"
                              Items="test"
@@ -38,15 +38,60 @@ else
     </div>
     <div>
         <ApexChart TItem="AngajatiProiecteMultiple"
-                   Title="Total angajati pe fiecare departament">
+                   Title="Total angajati cu diferite numere de proiecte" >
 
             <ApexPointSeries TItem="AngajatiProiecteMultiple"
                              Items="angajatiProiecteMultipleList"
                              Name="Angajati"
                              SeriesType="SeriesType.Bar"
-                             XValue="e => e.NrProiecte"
-                             YValue="e => e.NrAngajati" />
+                             XValue="e => e.NrAngajati"
+                             YValue="e => e.NrProiecte"
+                             OrderByDescending="e=> e.Y" 
+                             ShowDataLabels/>
 
+            <ApexPointSeries TItem="AngajatiProiecteMultiple"
+                             Items="angajatiProiecteMultipleList"
+                             Name="Angajati"
+                             SeriesType="SeriesType.Bar"
+                             XValue="e => e.NrAngajati"
+                             YValue="e => e.NrProiecte"
+                             OrderByDescending="e=> e.Y"
+                             ShowDataLabels />
+
+        </ApexChart>
+    </div>
+    <div>
+        <ApexChart TItem="AngajatiVarsta"
+                   Title="Total angajati pe diferite sectoare de varsta" Width="1000" Height="1000">
+
+            <ApexPointSeries TItem="AngajatiVarsta"
+                             Items="angajatiVarstaList"
+                             Name="Ceva"
+                             SeriesType="SeriesType.Pie"
+                             XValue="e => e.Varsta"
+                             YValue="e => e.NrAngajati"
+                             ShowDataLabels />
+
+
+        </ApexChart>
+    </div>
+    <div>
+        <ApexChart TItem="MyData"
+                   Title="Sample Data">
+
+            <ApexPointSeries TItem="MyData"
+                             Items="Data"
+                             Name="Net Profit"
+                             SeriesType="SeriesType.Bar"
+                             XValue="e => e.Category"
+                             YValue="e=> e.NetProfit" />
+
+            <ApexPointSeries TItem="MyData"
+                             Items="Data"
+                             Name="Revenue"
+                             SeriesType="SeriesType.Bar"
+                             XValue="e => e.Category"
+                             YValue="e=> e.Revenue" />
         </ApexChart>
     </div>
 }
@@ -55,6 +100,7 @@ else
     private List<MyData> Data { get; set; } = new();
     private List<DataTest> test { get; set; } = new();
     private List<AngajatiProiecteMultiple> angajatiProiecteMultipleList { get; set; } = new();
+    private List<AngajatiVarsta> angajatiVarstaList { get; set; } = new();
     List<DepartmentModel> departmentList;
     List<EmployeeModel> empList;
     List<EmployeeProjectModel> empProjectList;
@@ -65,12 +111,17 @@ else
         isHidden = !isHidden;
     }
 
+
+
     protected async override void OnInitialized()
     {
 
         departmentList = await this._departmentServices.GetAllDepartments();
         empList = await this._employeeServices.GetAllEmployees();
         empProjectList = await this._employeeProjectServices.GetAllEmployeesProjects();
+        Data.Add(new MyData { Category = "Jan", NetProfit = 12, Revenue = 33 });
+        Data.Add(new MyData { Category = "Feb", NetProfit = 43, Revenue = 42 });
+        Data.Add(new MyData { Category = "Mar", NetProfit = 112, Revenue = 23 });
 
         if (departmentList != null)
         {
@@ -83,26 +134,53 @@ else
         }
         if(empProjectList != null)
         {
-            foreach(var item in empProjectList)
-            {
-                var test = empProjectList
-                        .GroupBy(x => x.EmployeeId)
-                        .Where(z => z.Count() > 1)
-                        .Count();
-                Debug.WriteLine($"{test.ToString()}");
-                angajatiProiecteMultipleList.Add(new AngajatiProiecteMultiple
-                    {
-                        NrAngajati = empProjectList
-                        .GroupBy(x => x.EmployeeId)
-                        .Where(z => z.Count() > 1)
-                        .Count(),
-
-                        NrProiecte = 1   
-                    });
-            }
+            FilterByEmpNumberAndProjectCount();
+        }
+        if(empList != null)
+        {
+            FilterByNumberAndAge();
         }
         this.StateHasChanged();
     }
+
+    public void FilterByNumberAndAge()
+    {
+        var ageGroups = empList.GroupBy(e => e.Age)
+                                 .Select(g => new { Age = g.Key, EmployeeCount = g.Count() })
+                                 .OrderBy(a => a.Age); // Optional: order by age
+
+        // Print the result
+        foreach (var group in ageGroups)
+        {
+            angajatiVarstaList.Add(new AngajatiVarsta
+                {
+                    NrAngajati = group.EmployeeCount,
+                    Varsta = Convert.ToInt32(group.Age),
+                });
+        }
+    }
+
+    public void FilterByEmpNumberAndProjectCount()
+    {
+        var groupedEmployees = empProjectList.GroupBy(e => e.EmployeeId)
+                                             .Select(g => new { EmployeeId = g.Key, NumberOfProjects = g.Count() });
+
+        // Group the above result by the number of projects to get counts
+        var result = groupedEmployees.GroupBy(g => g.NumberOfProjects)
+                                     .Select(g => new { NumberOfProjects = g.Key, EmployeeCount = g.Count() });
+        foreach (var item in result)
+        {
+
+            angajatiProiecteMultipleList.Add(new AngajatiProiecteMultiple
+                {
+                    NrAngajati = item.EmployeeCount,
+
+                    NrProiecte = item.NumberOfProjects,
+                });
+        }
+    }
+
+
 
     public class MyData
     {
@@ -121,5 +199,11 @@ else
     {
         public int NrAngajati { get; set; }
         public int NrProiecte { get; set; }
+    }
+
+    public class AngajatiVarsta
+    {
+        public int NrAngajati { get; set; }
+        public int Varsta { get; set; }
     }
 }

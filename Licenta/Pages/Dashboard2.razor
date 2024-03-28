@@ -38,31 +38,24 @@ else
     </div>
     <div>
         <ApexChart TItem="AngajatiProiecteMultiple"
-                   Title="Total angajati cu diferite numere de proiecte" >
+                   Title="Total angajati pe proiecte" >
 
             <ApexPointSeries TItem="AngajatiProiecteMultiple"
                              Items="angajatiProiecteMultipleList"
                              Name="Angajati"
                              SeriesType="SeriesType.Bar"
-                             XValue="e => e.NrAngajati"
-                             YValue="e => e.NrProiecte"
+                             XValue="e => e.NrProiecte"
+                             YValue="e => e.NrAngajati"
                              OrderByDescending="e=> e.Y" 
                              ShowDataLabels/>
 
-            <ApexPointSeries TItem="AngajatiProiecteMultiple"
-                             Items="angajatiProiecteMultipleList"
-                             Name="Angajati"
-                             SeriesType="SeriesType.Bar"
-                             XValue="e => e.NrAngajati"
-                             YValue="e => e.NrProiecte"
-                             OrderByDescending="e=> e.Y"
-                             ShowDataLabels />
+
 
         </ApexChart>
     </div>
     <div>
         <ApexChart TItem="AngajatiVarsta"
-                   Title="Total angajati pe diferite sectoare de varsta" Width="1000" Height="1000">
+                   Title="Total angajati pe intervale de varsta" Width="700" Height="700">
 
             <ApexPointSeries TItem="AngajatiVarsta"
                              Items="angajatiVarstaList"
@@ -145,18 +138,27 @@ else
 
     public void FilterByNumberAndAge()
     {
-        var ageGroups = empList.GroupBy(e => e.Age)
-                                 .Select(g => new { Age = g.Key, EmployeeCount = g.Count() })
-                                 .OrderBy(a => a.Age); // Optional: order by age
+        var ageSectors = empList.Select(emp => emp.Age / 5 * 5) // Group by age sectors of 5
+                                .Distinct() // Ensure unique age sectors
+                                .OrderBy(age => age); // Order the age sectors
+
+        // Query to count employees in each age sector
+        var result = ageSectors.Select(minAge => new
+        {
+            MinAge = minAge,
+            MaxAge = minAge + 5,
+            EmployeeCount = empList.Count(emp => emp.Age >= minAge && emp.Age <= minAge + 5)
+        });
 
         // Print the result
-        foreach (var group in ageGroups)
+        foreach (var sector in result)
         {
             angajatiVarstaList.Add(new AngajatiVarsta
-                {
-                    NrAngajati = group.EmployeeCount,
-                    Varsta = Convert.ToInt32(group.Age),
-                });
+            {
+                NrAngajati = sector.EmployeeCount,
+                Varsta = $"{sector.MinAge} - {sector.MaxAge}"
+                
+            });
         }
     }
 
@@ -174,8 +176,7 @@ else
             angajatiProiecteMultipleList.Add(new AngajatiProiecteMultiple
                 {
                     NrAngajati = item.EmployeeCount,
-
-                    NrProiecte = item.NumberOfProjects,
+                    NrProiecte = $"{item.NumberOfProjects} proiect(e)", 
                 });
         }
     }
@@ -198,12 +199,12 @@ else
     public class AngajatiProiecteMultiple
     {
         public int NrAngajati { get; set; }
-        public int NrProiecte { get; set; }
+        public string NrProiecte { get; set; }
     }
 
     public class AngajatiVarsta
     {
         public int NrAngajati { get; set; }
-        public int Varsta { get; set; }
+        public string Varsta { get; set; }
     }
 }

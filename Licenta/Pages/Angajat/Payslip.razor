@@ -1,0 +1,56 @@
+﻿@page "/payslip/{EmployeeID:int}"
+@using Licenta.Models
+@using Licenta.Services
+@inject EmployeeServices _employeeServices
+
+<div class="row">
+    <div class="col">
+
+    </div>
+</div>
+<div class="row">
+    <div class="col">
+        @if(EmployeeID > 0 && emp != null)
+        {
+            <h1 style="text-align:center;">Fluturas salariu</h1>
+            <h2>Nume angajat @emp.FirstName @emp.LastName </h2>
+            <hr />
+            <p>Salariu de baza: @salary</p>
+            <hr />
+            <p>Asigurari sociale (CAS - 25%): @cas</p>
+            <p>Asigurari Sociale de Sanatate (CASS - 10%): @cass</p>
+            <p>Impozit pe venit (10%): @impozit</p>
+            <p>Rest de plata: @restPlata</p>
+        }
+    </div>
+</div>
+<div class="row">
+    <div class="col">
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public int EmployeeID { get; set; }
+    EmployeeModel emp;
+    double salary = 0;
+    double cas;
+    double cass;
+    double impozit;
+    double restPlata;
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        if(EmployeeID > 0)
+        {
+            emp = await this._employeeServices.GetEmployeeById(EmployeeID);
+            salary = emp.Salary;
+            cas = 0.25 * salary;
+            cass = 0.1 * salary;
+            impozit = 0.1 * salary;
+            restPlata = salary - cas - cass - impozit;
+        }
+    }
+
+}

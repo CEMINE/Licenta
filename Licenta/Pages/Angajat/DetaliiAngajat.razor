@@ -62,6 +62,10 @@
                     
                 }
             </div>
+            <div class="butoane">
+                <RadzenButton Text="Edit" ButtonStyle="ButtonStyle.Success" Shade="Shade.Dark" Icon="build" Click="@(()=> EditEmployeeProject(EmployeeID))" />
+                <RadzenButton Text="Fluturas salariu" Icon="account_balance_wallet" ButtonStyle="ButtonStyle.Primary" Shade="Shade.Default" Click="@(() => NavigateToPayslip(EmployeeID))" />
+            </div>
             
             
         </div>
@@ -93,9 +97,14 @@
         this.StateHasChanged();
     }
 
-    public void EditEmployeeProject()
+    public void EditEmployeeProject(int empId)
     {
         navManager.NavigateTo($"/updateproiectangajat/{EmployeeID}");
+    }
+
+    public void NavigateToPayslip(int empId)
+    {
+        navManager.NavigateTo($"/payslip/{EmployeeID}");
     }
 
 

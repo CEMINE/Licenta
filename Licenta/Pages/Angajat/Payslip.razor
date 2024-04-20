@@ -2,6 +2,7 @@
 @using Licenta.Models
 @using Licenta.Services
 @inject EmployeeServices _employeeServices
+@inject JobServices _jobServices
 
 <div class="row">
     <div class="col">
@@ -13,8 +14,10 @@
         @if(EmployeeID > 0 && emp != null)
         {
             <h1 style="text-align:center;">Fluturas salariu</h1>
+            <h2 style="text-align:center;">Luna aprilie/2024</h2>
             <h2>Nume angajat @emp.FirstName @emp.LastName </h2>
             <hr />
+            <p>Meserie: @meserie</p>
             <p>Salariu de baza: @salary</p>
             <hr />
             <p>Asigurari sociale (CAS - 25%): @cas</p>
@@ -33,6 +36,9 @@
     [Parameter]
     public int EmployeeID { get; set; }
     EmployeeModel emp;
+    JobModel job;
+    string meserie;
+    IEnumerable<JobModel> jobList;
     double salary = 0;
     double cas;
     double cass;
@@ -42,6 +48,7 @@
 
     protected override async Task OnInitializedAsync()
     {
+        jobList = await this._jobServices.GetAllJobs();
         if(EmployeeID > 0)
         {
             emp = await this._employeeServices.GetEmployeeById(EmployeeID);
@@ -50,6 +57,11 @@
             cass = 0.1 * salary;
             impozit = 0.1 * salary;
             restPlata = salary - cas - cass - impozit;
+        }
+        job = await this._jobServices.GetJobById(emp.JobID);
+        if(job != null)
+        {
+            meserie = job.JobTitle;
         }
     }
 

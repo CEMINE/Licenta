@@ -12,17 +12,18 @@
 }
 else
 {
+    <!--
     <div class="buttons">
         <RadzenStack Orientation="Radzen.Orientation.Horizontal" AlignItems="AlignItems.Center" Gap="1rem" Wrap="FlexWrap.Wrap" class="mb-3">
-            <RadzenButton Text="Total angajati/departament" ButtonStyle="ButtonStyle.Primary" class="rz-border-radius-6" Click=@Test />
+            <RadzenButton Text="Total angajati/departament" ButtonStyle="ButtonStyle.Primary" class="rz-border-radius-6" Click= />
             <RadzenButton Text="Total angajati/departament" ButtonStyle="ButtonStyle.Primary" class="rz-border-radius-6" />
             <RadzenButton Text="Total angajati/departament" ButtonStyle="ButtonStyle.Primary" class="rz-border-radius-6"/>
             <RadzenButton Text="Total angajati/departament" ButtonStyle="ButtonStyle.Primary" class="rz-border-radius-6" />
             <RadzenButton Text="Total angajati/departament" ButtonStyle="ButtonStyle.Primary" class="rz-border-radius-6" />
-
         </RadzenStack>
-
     </div>
+    -->
+
     <div>
         <ApexChart TItem="DataTest"
                    Title="Total angajati pe fiecare departament" >
@@ -68,25 +69,7 @@ else
 
         </ApexChart>
     </div>
-    <div>
-        <ApexChart TItem="MyData"
-                   Title="Sample Data">
-
-            <ApexPointSeries TItem="MyData"
-                             Items="Data"
-                             Name="Net Profit"
-                             SeriesType="SeriesType.Bar"
-                             XValue="e => e.Category"
-                             YValue="e=> e.NetProfit" />
-
-            <ApexPointSeries TItem="MyData"
-                             Items="Data"
-                             Name="Revenue"
-                             SeriesType="SeriesType.Bar"
-                             XValue="e => e.Category"
-                             YValue="e=> e.Revenue" />
-        </ApexChart>
-    </div>
+   
 }
 
 @code {

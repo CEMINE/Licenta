@@ -20,6 +20,7 @@ namespace Licenta.Models
         public double Salary { get; set; }
         public DateTime HireDate { get; set; } = DateTime.Now;
         public DateTime BirthDate { get; set; } = DateTime.Now;
+        public string CVPath { get; set; }
         public int? Age
         {
             get
@@ -65,7 +66,7 @@ namespace Licenta.Models
             {
 
             }
-        }
+        }        
 
     }
 }

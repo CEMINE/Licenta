@@ -3,6 +3,7 @@
 @using Licenta.Services
 @using System.Data
 @using System.Diagnostics
+@using System.IO
 @inject DepartmentServices _departmentServices
 @inject JobServices _jobServices
 @inject EmployeeServices _employeeServices
@@ -25,16 +26,16 @@
                 <form class="mt-3" style="width:100%; margin-left:80%">
                     <div class="form-group">
                         <label for="nume">Nume</label>
-                        <input @bind-value="@employee.LastName" style="width:20vw" type="text" class="form-control" id="nume" aria-describedby="emailHelp" placeholder="Nume">
+                        <input @bind-value="@employee.LastName" style="width:20vw;" type="text" class="form-control" id="nume" aria-describedby="emailHelp" placeholder="Nume">
                         
                     </div>
                     <div class="form-group mt-2">
                         <label for="prenume">Prenume</label>
-                        <input @bind-value="@employee.FirstName" type="text" class="form-control" id="prenume" placeholder="Prenume">
+                        <input style="width:20vw;" @bind-value="@employee.FirstName" type="text" class="form-control" id="prenume" placeholder="Prenume">
                     </div>
                     <div class="form-group mt-2">
                         <label for="exampleFormControlSelect1">Departament</label>
-                        <select class="form-control" id="exampleFormControlSelect1" @onchange="DepartmentHandler">
+                        <select class="form-control" id="exampleFormControlSelect1" @onchange="DepartmentHandler" style="width:20vw;">
                             @if(departmentList == null)
                             {
                               <div class="spinner">
@@ -52,7 +53,7 @@
                     </div>
                     <div class="form-group mt-2">
                         <label for="exampleFormControlSelect1">Job</label>
-                        <select class="form-control" id="exampleFormControlSelect1" @onchange="JobHandler">
+                        <select class="form-control" id="exampleFormControlSelect1" @onchange="JobHandler" style="width:20vw;">
                             @if (jobList == null)
                             {
                                 <div class="spinner">
@@ -69,7 +70,7 @@
                     </div>
                     <div class="form-group mt-2">
                         <label for="salar">Salariu</label>
-                        <input @bind-value="@salariu" type="text" class="form-control" id="salar" placeholder="$$$$$">
+                        <input @bind-value="@salariu" type="text" class="form-control" id="salar" placeholder="$$$$$" style="width:20vw;">
                     </div>
                      
 
@@ -80,11 +81,14 @@
                     <div class="mb-3 mt-2 form-group">
                         <label for="hiredate">Data angajarii</label>
                         <input class="form-control" name="hiredate" style="width:20vw;" TValue="DateTime" type="date" @bind-value="@hireDate" @bind-value:event="oninput" />
-                    </div>
-
-                    
-                    
-                    <RadzenButton Click=@AdaugareAngajat Text="Adauga angajat" Icon="add_circle_outline" ButtonStyle="ButtonStyle.Success"></RadzenButton>
+                    </div> 
+                    <RadzenCard class="mt-3 mb-3" Style="width:20vw;">
+                        <h6>Adauga CV</h6>
+                        <InputFile OnChange="HandleFileChange" accept=".pdf" />
+                    </RadzenCard>
+                    <RadzenButton class="mb-3" Click=@AdaugareAngajat Text="Adauga angajat" Icon="add_circle_outline" ButtonStyle="ButtonStyle.Success"></RadzenButton>      
+                    <br />
+                    <RadzenButton Click=Test></RadzenButton>
                 </form>
             </div>
         </div>
@@ -107,6 +111,12 @@
     double salariu = 0;
     int depId = 1;
     int jobId = 1;
+    string fileName;
+    long? fileSize;
+    string cvPath;
+    IBrowserFile cvFile;
+    bool shouldCopyPdf = false;
+    // string RunningPath;
 
     protected override async Task OnInitializedAsync()
     {
@@ -114,6 +124,8 @@
         employee.JobID = 1;
         departmentList = await _departmentServices.GetAllDepartments();
         jobList = await _jobServices.GetAllJobs();
+
+
     }
 
     async Task PutTaskDelay()
@@ -160,6 +172,16 @@
             return;
         }
 
+        if(String.IsNullOrEmpty(cvPath))
+        {
+            notification.Notify(NotificationSeverity.Error, "Eroare!", "Trebuie sa selectezi CV-ul angajatului!", 3000);
+            return;
+        }
+
+        if(!String.IsNullOrEmpty(cvPath))
+        {
+            shouldCopyPdf = true;
+        }
 
         Debug.WriteLine($"salariu {salariu}");
         employee.HireDate = hireDate;
@@ -167,13 +189,14 @@
         employee.JobID = jobId;
         employee.DepartmentID = depId;
         employee.Salary = salariu;
+        await CopyPdfFile(cvFile);
+        employee.CVPath = cvPath;
         await _employeeServices.AddEmployee(employee);
         notification.Notify(NotificationSeverity.Success, "Succes!", "Angajatul a fost adaugat cu succes!", 3000);
         await PutTaskDelay();
         navManager.NavigateTo("/listaemp");
 
     }
-
 
     public void DepartmentHandler(ChangeEventArgs e)
     {
@@ -185,5 +208,50 @@
         jobId = Convert.ToInt32(e.Value);
     }
 
+    private async Task HandleFileChange(InputFileChangeEventArgs e)
+    {
+        cvFile = e.File;
+        Debug.WriteLine("Merge");
+        if (cvFile.ContentType == "application/pdf")
+        {
+
+            await CopyPdfFile(cvFile);
+            Debug.WriteLine($"Apel catre CopyPdfFile");
+        }
+        else
+        {
+            notification.Notify(NotificationSeverity.Error, "Eroare!", "Fisierul selectat trebuie sa fie de tip .PDF !", 3000);
+            Debug.WriteLine("Eroare handlefilechange");
+        }
+    }
+
+    private async Task CopyPdfFile(IBrowserFile file)
+    {
+        var appDataFolder = AppDomain.CurrentDomain.BaseDirectory;
+        var folderPath = Path.Combine(appDataFolder, "res", "cv");
+        Debug.WriteLine($"Folder path {folderPath}");
+
+        Directory.CreateDirectory(folderPath);
+
+        var fileName = file.Name;
+        var filePath = Path.Combine(folderPath, fileName);
+        cvPath = filePath;
+        Debug.WriteLine($"cvpath {cvPath}");
+        if(shouldCopyPdf)
+        {
+
+
+            using (var fileStream = new FileStream(filePath, FileMode.Create))
+            {
+                await file.OpenReadStream().CopyToAsync(fileStream);
+
+                Debug.WriteLine($"fisier copiat la {filePath}");
+            }
+        }      
+    }
 
 }
+
+
+
+

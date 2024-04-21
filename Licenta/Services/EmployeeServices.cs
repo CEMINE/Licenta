@@ -115,6 +115,37 @@ namespace Licenta.Services
             }
         }
 
+        public async Task<EmployeeModel> GetEmployeeCVById(int employeeId)
+        {
+            try
+            {
+
+                EmployeeModel currentEmployee = new EmployeeModel();
+
+                string fullUrl = this.baseUrl + $"GetEmployeeCVById/{employeeId}";
+
+                HttpClient httpClient = new HttpClient();
+
+                httpClient.BaseAddress = new Uri(fullUrl);
+                httpClient.Timeout = TimeSpan.FromSeconds(30);
+
+                HttpResponseMessage httpResponseMessage = await httpClient.GetAsync("");
+
+                if (httpResponseMessage.IsSuccessStatusCode)
+                {
+                    string contentRespone = await httpResponseMessage.Content.ReadAsStringAsync();
+
+                    currentEmployee = JsonConvert.DeserializeObject<EmployeeModel>(contentRespone);
+                }
+
+                return await Task.FromResult(currentEmployee);
+            }
+            catch (Exception)
+            {
+                return null;
+            }
+        }
+
 
         public async Task<EmployeeModel> UpdateEmployee(EmployeeModel employeeInfo)
         {

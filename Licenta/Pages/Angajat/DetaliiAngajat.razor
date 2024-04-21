@@ -87,6 +87,7 @@
     string jobTitle;
     string cvPath;
 
+
     protected override async Task OnInitializedAsync()
     {
         emp = await this._employeeServices.GetEmployeeById(EmployeeID);
@@ -111,7 +112,7 @@
         navManager.NavigateTo($"/payslip/{EmployeeID}");
     }
 
-    public async void OpenCV()
+    public void OpenCV()
     {
         //ProcessStartInfo processStartInfo = new ProcessStartInfo(cvPath);
         //Process.Start(processStartInfo);
@@ -129,22 +130,10 @@
             Console.WriteLine($"Error opening PDF: {ex.Message}");
             notification.Notify(NotificationSeverity.Error, "Eroare!", "Angajatul nu are setat un CV!", 3000);
         }
-
-        Debug.WriteLine($"cv path {cvPath}");
-            /*
-            if(! String.IsNullOrEmpty(cvPath))
-        {
-            if (!File.Exists(cvPath))
-            {
-                Debug.WriteLine("Fisierul nu exista");
-                return;
-            }
-
-        }
-         */
-        
-
+        Debug.WriteLine($"cv path {cvPath}");    
     }
+
+
 
 
 

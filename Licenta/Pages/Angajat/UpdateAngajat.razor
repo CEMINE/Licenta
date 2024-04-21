@@ -88,7 +88,7 @@
                         </select>
                     </div>
                     <div class="form-group mt-2">
-                        <label for="salar">Salariu</label>
+                        <label for="salar">Salariu brut</label>
                         <input @bind-value="@employee.Salary" type="text" class="form-control" id="salar" placeholder="$$$$$">
                     </div>
 
@@ -161,10 +161,24 @@
                                     }
                                 </select>
                             </div>
+                            <RadzenCard class="mt-3 mb-3">
+                                @if (!String.IsNullOrEmpty(cvPath))
+                                {
+                                    <h6>Modifica CV</h6>
+                                }
+                                else
+                                {
+                                    <h6>Adauga CV</h6>
+                                }
+
+                                <InputFile OnChange="HandleFileChange" accept=".pdf" />
+                            </RadzenCard>
                             <div>
                                 <RadzenButton Click=@ToggleVisibility Text="Adauga proiect" Icon="add_circle_outline" ButtonStyle="ButtonStyle.Primary"></RadzenButton>
                                 <RadzenButton Click=@UpdateEmployee Text="Salveaza modificari" ButtonStyle="ButtonStyle.Success" Shade="Shade.Dark" Style="font-family:Arial; margin-left:30px;" Icon="save"></RadzenButton>
                             </div>
+                            
+                            
                             
 
                         }
@@ -201,6 +215,9 @@
     List<int> selectedValues = new List<int>();
     bool btnHidden = false;
     bool divHidden = true;
+    string cvPath;
+    IBrowserFile cvFile;
+    bool shouldCopyPdf = false;
 
 
 
@@ -215,6 +232,7 @@
         //Debug.WriteLine($"emp id {employee.EmployeeID} / {EmployeeID}");
         employeeProjectsList = await this._employeeProjectServices.GetEmployeeProjectsById(EmployeeID);
         projectList = await this._projectServices.GetAllProjects();
+        cvPath = employee.CVPath;
         this.StateHasChanged();
     }
 
@@ -263,7 +281,12 @@
             return;
         }
 
-
+        if (!String.IsNullOrEmpty(cvPath))
+        {
+            shouldCopyPdf = true;
+        }
+        await CopyPdfFile(cvFile);
+        employee.CVPath = cvPath;
         await _employeeServices.UpdateEmployee(employee);
         employeeProjectsList = await this._employeeProjectServices.GetEmployeeProjectsById(EmployeeID);
         notification.Notify(NotificationSeverity.Success, "Succes!", "Modificarile au fost salvate cu succes!", 5000);
@@ -354,6 +377,47 @@
         divHidden = !divHidden;
     }
 
+    private async Task HandleFileChange(InputFileChangeEventArgs e)
+    {
+        cvFile = e.File;
+        Debug.WriteLine("Merge");
+        if (cvFile.ContentType == "application/pdf")
+        {
+
+            await CopyPdfFile(cvFile);
+            Debug.WriteLine($"Apel catre CopyPdfFile");
+        }
+        else
+        {
+            notification.Notify(NotificationSeverity.Error, "Eroare!", "Fisierul selectat trebuie sa fie de tip .PDF !", 3000);
+            Debug.WriteLine("Eroare handlefilechange");
+        }
+    }
+
+    private async Task CopyPdfFile(IBrowserFile file)
+    {
+        var appDataFolder = AppDomain.CurrentDomain.BaseDirectory;
+        var folderPath = Path.Combine(appDataFolder, "res", "cv");
+        Debug.WriteLine($"Folder path {folderPath}");
+
+        Directory.CreateDirectory(folderPath);
+
+        var fileName = file.Name;
+        var filePath = Path.Combine(folderPath, fileName);
+        cvPath = filePath;
+        Debug.WriteLine($"cvpath {cvPath}");
+        if (shouldCopyPdf)
+        {
+
+
+            using (var fileStream = new FileStream(filePath, FileMode.Create))
+            {
+                await file.OpenReadStream().CopyToAsync(fileStream);
+
+                Debug.WriteLine($"fisier copiat la {filePath}");
+            }
+        }
+    }
 
 
 

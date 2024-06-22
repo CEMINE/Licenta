@@ -30,7 +30,6 @@ else
 					<th style="width:8vw; padding: 0 0 0 0;">Nume departament</th>
 					<th style="width:8vw; padding: 0 0 0 0;">Edit</th>
 					<th style="width:8vw; padding: 0 0 0 0;">Sterge</th>
-					<th style="width:8vw; padding: 0 0 0 0;">Detalii</th>
 				</tr>
 			</thead>
 			<tbody>
@@ -43,7 +42,6 @@ else
 							<td>@dep.DepartmentName</td>
 							<td><RadzenButton Text="Edit" ButtonStyle="ButtonStyle.Success" Shade="Shade.Dark" Icon="build" Click="@(()=> UpdateDepartment(dep))"></RadzenButton></td>
 							<td><RadzenButton Text="Sterge" Icon="delete" ButtonStyle="ButtonStyle.Danger" Shade="Shade.Dark" Click="@(()=> DeleteDepartment(dep))"></RadzenButton></td>
-							<td><RadzenButton Text="Detalii" Icon="info" ButtonStyle="ButtonStyle.Primary" Shade="Shade.Default" Click="@(() => DepartmentDetails(dep))"></RadzenButton></td>
 						</tr>
 					}
 				}
@@ -57,7 +55,6 @@ else
 							<td>@dep.DepartmentName</td>
 							<td><RadzenButton Text="Edit" ButtonStyle="ButtonStyle.Success" Shade="Shade.Dark" Icon="build" Click="@(()=> UpdateDepartment(dep))"></RadzenButton></td>
 							<td><RadzenButton Text="Sterge" Icon="delete" ButtonStyle="ButtonStyle.Danger" Shade="Shade.Dark" Click="@(()=> DeleteDepartment(dep))"></RadzenButton></td>
-							<td><RadzenButton Text="Detalii" Icon="info" ButtonStyle="ButtonStyle.Primary" Shade="Shade.Default" Click="@(() => DepartmentDetails(dep))"></RadzenButton></td>
 						</tr>
 					}
 				}

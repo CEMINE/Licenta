@@ -7,27 +7,25 @@
 
 
 <div class="row">
-    <div class="col-12" style="border: 1px solid black;">
-        <h1 style="text-align:center;">Adauga job</h1>
+    <div class="col-12" >
+        <h1 style="text-align:center;">Adauga pozitie de munca</h1>
     </div>
 </div>
 <div class="row">
-    <div class="col-2" style="border: 1px solid black;">
-        <p>test</p>
+    <div class="col-2" >
     </div>
-    <div class="col-8" style="border: 1px solid black;">
+    <div class="col-8" >
         <div class="wrapper">
             <form class="mt-3" style="margin-left:31%;">
                 <div class="form-group">
-                    <label for="nume">Nume job</label>
+                    <label for="nume">Denumire pozitie</label>
                     <input style="width:20vw" type="text" class="form-control" id="nume" aria-describedby="emailHelp" placeholder="Nume departament" @bind-value="@jobName">
                 </div>
                 <RadzenButton Click=@AddJob Text="Adauga departament" Icon="add_circle_outline" ButtonStyle="ButtonStyle.Success" class="mt-3"></RadzenButton>
             </form>
         </div>
     </div>
-    <div class="col-2" style="border: 1px solid black;">
-        <p>test</p>
+    <div class="col-2" >
     </div>
 </div>
 
@@ -44,7 +42,7 @@
     {
         if (jobName == null || jobName == "")
         {
-            notification.Notify(NotificationSeverity.Error, "Eroare", $"Trebuie sa completati numele job-ului", 3000);
+            notification.Notify(NotificationSeverity.Error, "Eroare", $"Trebuie sa completati numele pozitiei", 3000);
             return;
         }
 
@@ -54,7 +52,7 @@
             {
                 if (item.JobTitle.Contains(jobName))
                 {
-                    notification.Notify(NotificationSeverity.Error, "Eroare", $"Acest job exista deja!", 3000);
+                    notification.Notify(NotificationSeverity.Error, "Eroare", $"Acesta denumire exista deja!", 3000);
                     return;
                 }
             }

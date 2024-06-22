@@ -121,27 +121,26 @@ else
 
     public void FilterByNumberAndAge()
     {
-        var ageSectors = empList.Select(emp => emp.Age / 5 * 5) // Group by age sectors of 5
-                                .Distinct() // Ensure unique age sectors
-                                .OrderBy(age => age); // Order the age sectors
+        var ageSectors = empList.Select(emp => emp.Age / 5 * 5) 
+                                .Distinct() 
+                                .OrderBy(age => age); 
 
-        // Query to count employees in each age sector
+    
         var result = ageSectors.Select(minAge => new
         {
             MinAge = minAge,
             MaxAge = minAge + 5,
-            EmployeeCount = empList.Count(emp => emp.Age >= minAge && emp.Age <= minAge + 5)
+            EmployeeCount = empList.Count(emp => emp.Age >= minAge && emp.Age < minAge + 5) 
         });
 
         // Print the result
         foreach (var sector in result)
         {
             angajatiVarstaList.Add(new AngajatiVarsta
-            {
-                NrAngajati = sector.EmployeeCount,
-                Varsta = $"{sector.MinAge} - {sector.MaxAge}"
-                
-            });
+                {
+                    NrAngajati = sector.EmployeeCount,
+                    Varsta = $"{sector.MinAge} - {sector.MaxAge - 1}" 
+                });
         }
     }
 
@@ -150,7 +149,6 @@ else
         var groupedEmployees = empProjectList.GroupBy(e => e.EmployeeId)
                                              .Select(g => new { EmployeeId = g.Key, NumberOfProjects = g.Count() });
 
-        // Group the above result by the number of projects to get counts
         var result = groupedEmployees.GroupBy(g => g.NumberOfProjects)
                                      .Select(g => new { NumberOfProjects = g.Key, EmployeeCount = g.Count() });
         foreach (var item in result)

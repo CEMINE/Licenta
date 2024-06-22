@@ -26,10 +26,9 @@ else
 		<table class="table table-sm table-striped gap-0">
 			<thead>
 				<tr>
-					<th style="width:8vw; padding: 0 0 0 0;">Nume departament</th>
+					<th style="width:8vw; padding: 0 0 0 0;">Nume pozitie</th>
 					<th style="width:8vw; padding: 0 0 0 0;">Edit</th>
 					<th style="width:8vw; padding: 0 0 0 0;">Sterge</th>
-					<th style="width:8vw; padding: 0 0 0 0;">Detalii</th>
 				</tr>
 			</thead>
 			<tbody>
@@ -42,7 +41,6 @@ else
 							<td>@job.JobTitle</td>
 							<td><RadzenButton Text="Edit" ButtonStyle="ButtonStyle.Success" Shade="Shade.Dark" Icon="build" Click="@(()=> UpdateJob(job))"></RadzenButton></td>
 							<td><RadzenButton Text="Sterge" Icon="delete" ButtonStyle="ButtonStyle.Danger" Shade="Shade.Dark" Click="@(()=> DeleteJob(job))"></RadzenButton></td>
-							<td><RadzenButton Text="Detalii" Icon="info" ButtonStyle="ButtonStyle.Primary" Shade="Shade.Default" Click="@(() => JobDetails(job))"></RadzenButton></td>
 						</tr>
 					}
 				}
@@ -56,7 +54,6 @@ else
 							<td>@job.JobTitle</td>
 							<td><RadzenButton Text="Edit" ButtonStyle="ButtonStyle.Success" Shade="Shade.Dark" Icon="build" Click="@(()=> UpdateJob(job))"></RadzenButton></td>
 							<td><RadzenButton Text="Sterge" Icon="delete" ButtonStyle="ButtonStyle.Danger" Shade="Shade.Dark" Click="@(()=> DeleteJob(job))"></RadzenButton></td>
-							<td><RadzenButton Text="Detalii" Icon="info" ButtonStyle="ButtonStyle.Primary" Shade="Shade.Default" Click="@(() => JobDetails(job))"></RadzenButton></td>
 						</tr>
 					}
 				}

@@ -32,7 +32,6 @@ else
 					<th style="width:8vw; padding: 0 0 0 0;">Data sfarsit</th>
 					<th style="width:8vw; padding: 0 0 0 0;">Edit</th>
 					<th style="width:8vw; padding: 0 0 0 0;">Sterge</th>
-					<th style="width:8vw; padding: 0 0 0 0;">Detalii</th>
 				</tr>
 			</thead>
 			<tbody>
@@ -47,8 +46,6 @@ else
 							<td>@project.EndDate.ToString("dd/MM/yyyy")</td>
 							<td><RadzenButton Text="Edit" ButtonStyle="ButtonStyle.Success" Shade="Shade.Dark" Icon="build" Click="@(()=> UpdateProject(project))"></RadzenButton></td>
 							<td><RadzenButton Text="Sterge" Icon="delete" ButtonStyle="ButtonStyle.Danger" Shade="Shade.Dark" Click="@(()=> DeleteProject(project))"></RadzenButton></td>
-							<td><RadzenButton Text="Detalii" Icon="info" ButtonStyle="ButtonStyle.Primary" Shade="Shade.Default" ></RadzenButton></td>
-
 						</tr>
 					}
 				}
@@ -64,7 +61,6 @@ else
 							<td>@project.EndDate.ToString("dd/MM/yyyy")</td>
 							<td><RadzenButton Text="Edit" ButtonStyle="ButtonStyle.Success" Shade="Shade.Dark" Icon="build" Click="@(()=> UpdateProject(project))"></RadzenButton></td>
 							<td><RadzenButton Text="Sterge" Icon="delete" ButtonStyle="ButtonStyle.Danger" Shade="Shade.Dark" Click="@(()=> DeleteProject(project))"></RadzenButton></td>
-							<td><RadzenButton Text="Detalii" Icon="info" ButtonStyle="ButtonStyle.Primary" Shade="Shade.Default" Click="@(() => ProjectDetails(project))"></RadzenButton></td>
 
 						</tr>
 					}

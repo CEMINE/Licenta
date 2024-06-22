@@ -17,15 +17,14 @@
 
 <div class="container container-fluid align-items-center justify-content-center">
     <div class="row">
-        <div class="col justify-content-center" style="border:1px solid black">
+        <div class="col justify-content-center" >
             <h3 style="text-align:center;">Editeaza informatii angajat</h3>
         </div>
     </div>
     <div class="row">
-        <div class="col-2" style="border:1px solid black">
-            <p>test</p>
+        <div class="col-2" >
         </div>
-        <div class="col-8 d-flex align-items-center" style="border:1px solid black">
+        <div class="col-8 d-flex align-items-center" >
             <div class="date justify-content-center align-items-center" style="left:50%">
                 <form class="mt-3" style="width:100%; margin-left:48%">
                     <div class="form-group">
@@ -191,8 +190,7 @@
                 </form>
             </div>
         </div>
-        <div class="col-2" style="border:1px solid black">
-            <p>test</p>
+        <div class="col-2" >
         </div>
     </div>
     <div class="row">
@@ -354,7 +352,7 @@
                 return;
             }
         }
-        await DialogAlert.DisplayConfirm("test", $"valoare veche{selectedValues[oldProjectId]} / valoare noua{e.Value}", "da", "nu");
+        await DialogAlert.DisplayConfirm("Atentie!", $"Esti pe cale sa inlocuiesti proiectul {projectList.First(x => x.ProjectID == selectedValues[oldProjectId]).ProjectName} cu proiectul {projectList.First(x => x.ProjectID == Convert.ToInt32(e.Value)).ProjectName} pentru angajatul {employee.LastName} {employee.FirstName}! \n Continui?", "da", "nu");
         await this._employeeProjectServices.UpdateEmployeeProject(EmployeeID, selectedValues[oldProjectId], epm);
         await OnInitializedAsync();
         notification.Notify(NotificationSeverity.Success, "Succes!", "Modificarile au fost salvate cu succes!", 5000);

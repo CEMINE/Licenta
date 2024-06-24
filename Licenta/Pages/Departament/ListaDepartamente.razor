@@ -100,7 +100,7 @@ else
 
 	public async void DeleteDepartment(DepartmentModel dep)
 	{
-		var confirmResult = await _dialogService.Confirm("Atentie", $"Esti sigur ca vrei sa stergi departamentul {dep.DepartmentName}?");
+		var confirmResult = await _dialogService.Confirm($"Esti sigur ca vrei sa stergi departamentul {dep.DepartmentName}?", "Atentie" );
 
 		if (confirmResult.HasValue && confirmResult.Value)
 		{

@@ -107,7 +107,7 @@ else
 
 	public async void DeleteProject(ProjectModel proj)
 	{
-		var confirmResult = await _dialogService.Confirm("Atentie", $"Esti sigur ca vrei sa stergi proiectul {proj.ProjectName}?");
+		var confirmResult = await _dialogService.Confirm($"Esti sigur ca vrei sa stergi proiectul {proj.ProjectName}?", "Atentie!");
 
 		if (confirmResult.HasValue && confirmResult.Value)
 		{

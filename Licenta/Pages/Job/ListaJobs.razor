@@ -75,7 +75,7 @@ else
 
 	public void UpdateJob(JobModel job)
 	{
-		_navManager.NavigateTo($"/updatedepartament/{job.JobID}");
+		_navManager.NavigateTo($"/updatejob/{job.JobID}");
 	}
 
 
@@ -99,7 +99,7 @@ else
 
 	public async void DeleteJob(JobModel job)
 	{
-		var confirmResult = await _dialogService.Confirm("Atentie", $"Esti sigur ca vrei sa stergi job-ul {job.JobTitle}?");
+		var confirmResult = await _dialogService.Confirm($"Esti sigur ca vrei sa stergi pozitia {job.JobTitle}?", "Atentie");
 
 		if (confirmResult.HasValue && confirmResult.Value)
 		{

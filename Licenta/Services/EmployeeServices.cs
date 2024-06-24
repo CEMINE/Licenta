@@ -30,9 +30,6 @@ namespace Licenta.Services
                 string fullUrl = this.baseUrl + "GetAllEmployees";
 
                 HttpClient httpClient = new HttpClient();
-                //Debug.WriteLine("baseurl" + baseUrl);
-                //Debug.WriteLine("Full url " + fullUrl);
-                //Debug.WriteLine($"platforma: {DeviceInfo.Platform}" );
                 httpClient.BaseAddress = new Uri(fullUrl);
                 httpClient.Timeout = TimeSpan.FromSeconds(30);
 
@@ -43,14 +40,13 @@ namespace Licenta.Services
                     string contentResponse = await httpResponseMessage.Content.ReadAsStringAsync();
 
                     employeeList = JsonConvert.DeserializeObject<List<EmployeeModel>>(contentResponse);
-                    //Debug.WriteLine("Conectiune realizata cu success!");
                 }
 
                 return await Task.FromResult(employeeList.ToList());
             }
-            catch (Exception)
+            catch (Exception e)
             {
-                //Debug.WriteLine(e.Message);
+                Debug.WriteLine("Eroare la preluarea angajatilor!" + "\n Eroarea: " + e.Message + e.InnerException.Message);
                 throw;
             }
 
@@ -77,9 +73,9 @@ namespace Licenta.Services
 
                 return await Task.FromResult(new EmployeeModel());
             }
-            catch (Exception)
+            catch (Exception e)
             {
-
+                Debug.WriteLine("Eroare la adaugare angajat!" + "\n Eroarea: " + e.Message + e.InnerException.Message);
                 throw;
             }
         }
@@ -109,9 +105,10 @@ namespace Licenta.Services
 
                 return await Task.FromResult(currentEmployee);
             }
-            catch (Exception)
+            catch (Exception e)
             {
-                return null;
+                Debug.WriteLine("Eroare la preluarea angajatului dupa id!" + "\n Eroarea: " + e.Message + e.InnerException.Message);
+                throw;
             }
         }
 
@@ -140,9 +137,10 @@ namespace Licenta.Services
 
                 return await Task.FromResult(currentEmployee);
             }
-            catch (Exception)
+            catch (Exception e)
             {
-                return null;
+                Debug.WriteLine("Eroare la preluarea cv-ului angajatului!" + "\n Eroarea: " + e.Message + e.InnerException.Message);
+                throw;
             }
         }
 
@@ -172,9 +170,10 @@ namespace Licenta.Services
 
                 return await Task.FromResult(new EmployeeModel());
             }
-            catch (Exception)
+            catch (Exception e)
             {
-                return null;
+                Debug.WriteLine("Eroare la modificarea datelor angajatului!" + "\n Eroarea: " + e.Message + e.InnerException.Message);
+                throw;
             }
         }
 
@@ -200,9 +199,12 @@ namespace Licenta.Services
 
                 return await Task.FromResult(false);
             }
-            catch (Exception)
+            catch (Exception e)
             {
+                Debug.WriteLine("Eroare la stergerea angajatului!" + "\n Eroarea: " + e.Message + e.InnerException.Message);
                 return false;
+                throw;
+                
             }
         }
     }

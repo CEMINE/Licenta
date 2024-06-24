@@ -55,7 +55,7 @@
             salary = emp.Salary;
             cas = 0.25 * salary;
             cass = 0.1 * salary;
-            impozit = 0.1 * salary;
+            impozit = 0.1 * (salary-cas-cass);
             restPlata = salary - cas - cass - impozit;
         }
         job = await this._jobServices.GetJobById(emp.JobID);

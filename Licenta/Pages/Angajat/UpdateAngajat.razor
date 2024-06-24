@@ -377,23 +377,35 @@
 
     private async Task HandleFileChange(InputFileChangeEventArgs e)
     {
+        if (e.File == null)
+        {
+            notification.Notify(NotificationSeverity.Error, "Eroare!", "Niciun fișier selectat.", 3000);
+            Debug.WriteLine("Niciun fișier selectat în HandleFileChange");
+            return;
+        }
+
         cvFile = e.File;
-        Debug.WriteLine("Merge");
+        Debug.WriteLine("Fișier selectat");
         if (cvFile.ContentType == "application/pdf")
         {
-
             await CopyPdfFile(cvFile);
             Debug.WriteLine($"Apel catre CopyPdfFile");
         }
         else
         {
-            notification.Notify(NotificationSeverity.Error, "Eroare!", "Fisierul selectat trebuie sa fie de tip .PDF !", 3000);
-            Debug.WriteLine("Eroare handlefilechange");
+            notification.Notify(NotificationSeverity.Error, "Eroare!", "Fișierul selectat trebuie să fie de tip .PDF!", 3000);
+            Debug.WriteLine("Eroare: fișierul selectat nu este PDF");
         }
     }
 
     private async Task CopyPdfFile(IBrowserFile file)
     {
+        if (file == null)
+        {
+            Debug.WriteLine("Niciun fișier de copiat în CopyPdfFile");
+            return;
+        }
+
         var appDataFolder = AppDomain.CurrentDomain.BaseDirectory;
         var folderPath = Path.Combine(appDataFolder, "res", "cv");
         Debug.WriteLine($"Folder path {folderPath}");
@@ -406,13 +418,10 @@
         Debug.WriteLine($"cvpath {cvPath}");
         if (shouldCopyPdf)
         {
-
-
             using (var fileStream = new FileStream(filePath, FileMode.Create))
             {
                 await file.OpenReadStream().CopyToAsync(fileStream);
-
-                Debug.WriteLine($"fisier copiat la {filePath}");
+                Debug.WriteLine($"Fisier copiat la {filePath}");
             }
         }
     }
